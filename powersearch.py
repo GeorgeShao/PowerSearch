@@ -2,7 +2,7 @@ import os
 import logging
 import argparse
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--a', help='help_text_a')
@@ -23,5 +23,7 @@ if args.c:
 else:
     temp_b = "option_d"
 
-logging.info(f"stuff: {temp_a,temp_b}")
+# logging.info(f"stuff: {temp_a,temp_b}")
+print(f"stuff: {temp_a,temp_b}")
 
+k = input("Finished.") 
