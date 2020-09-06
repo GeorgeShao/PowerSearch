@@ -1,47 +1,27 @@
 import os
-import logging
 import argparse
-
-# logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
-parser.add_argument('--include-ext-only', action='store_true', help='Include files that only have an extension')
+parser.add_argument('--include-ext-only-dirs', action='store_true', help='Include files that only have an extension')
+parser.add_argument('--include-ext-only-files', action='store_true', help='Include files that only have an extension')
 parser.add_argument('--include-no-ext', action='store_true', help='Include files with no extension')
-parser.add_argument('--b', action='store_true', help='help_text_b')
-parser.add_argument('--c', action='store_true', help='help_text_c')
 args = parser.parse_args()
-
-if args.path:
-    logging.info(f'path={args.path}')
-
-if args.b:
-    temp_a = "option_a"
-else:
-    temp_a = "option_b"
-
-if args.c:
-    temp_b = "option_c"
-else:
-    temp_b = "option_d"
-
-# logging.info(f"stuff: {temp_a,temp_b}")
-# print(f"stuff: {temp_a,temp_b}")
 
 std_ignored_exts = [".cache"]
 
 def listfiles(path):
     if path == "" or path == None:
         path = os.getcwd()
-    print(path)
+    print(f'PATH = {args.path}')
     files = []
-    num_skipped_hidden_dirs = 0
-    skipped_hidden_files = 0
+    num_skipped_extonly_dirs = 0
+    num_skipped_extonly_files = 0
     num_skipped_noext_files = 0
     num_skipped_stdignored_files = 0
 
-    skipped_hidden_dirs = []
-    skipped_hidden_files = []
+    skipped_extonly_dirs = []
+    skipped_extonly_files = []
     skipped_noext_files = []
     skipped_stdignored_files = []
     
@@ -49,15 +29,15 @@ def listfiles(path):
     for r, d, f in os.walk(path):
         # check if the folder is hidden
         for dir in d:
-            if not dir.startswith("."):
+            if not dir.startswith(".") and not args.include_ext_only_dirs:
                 for filename in f:
                     hide_file_status = False
-                    # check if the file is hidden
-                    if filename.startswith(".") and not args.include_ext_only:
-                        num_skipped_hidden_files += 1
-                        skipped_noext_files.append(filename)
+                    # check if the file only has an extension and no name
+                    if filename.startswith(".") and not args.include_ext_only_files:
+                        num_skipped_extonly_files += 1
+                        skipped_extonly_files.append(filename)
                         break
-                    # check if filename has an extension
+                    # check if filename doesn't have an extension
                     if "." not in filename and not args.include_no_ext:
                         num_skipped_noext_files += 1
                         skipped_noext_files.append(filename)
@@ -74,12 +54,13 @@ def listfiles(path):
                         files.append(os.path.join(r, filename))
                         print(filename)
             else:
-                num_skipped_hidden_dirs += 1
-                skipped_hidden_dirs.append(dir)
+                num_skipped_extonly_dirs += 1
+                skipped_extonly_dirs.append(dir)
     # output skipped dirs/files stats
-    print(f"skipped hidden dirs = {num_skipped_hidden_dirs} {skipped_hidden_dirs}")
-    print(f"skipped noext files = {num_skipped_noext_files} {skipped_noext_files}")
-    print(f"skipped stdignored exts = {num_skipped_stdignored_files} {skipped_stdignored_files}")
+    print(f"SKIPPED EXTONLY DIRS = {num_skipped_extonly_dirs} {skipped_extonly_dirs}")
+    print(f"SKIPPED EXTONLY FILES = {num_skipped_extonly_files} {skipped_extonly_files}")
+    print(f"SKIPPED NOEXT FILES = {num_skipped_noext_files} {skipped_noext_files}")
+    print(f"SKIPPED STDIGNORED EXTS = {num_skipped_stdignored_files} {skipped_stdignored_files}")
     
 
 listfiles(args.path)
