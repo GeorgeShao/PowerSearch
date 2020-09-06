@@ -8,14 +8,14 @@ parser.add_argument('--include-dot-files', action='store_true', help='Include fi
 parser.add_argument('--include-no-ext', action='store_true', help='Include files with no extension')
 args = parser.parse_args()
 
-std_ignored_exts = [".cache", ".pyc"]
+std_ignored_exts = [".cache", ".pyc", ".sample"]
 
 valid_dir_name = True
 
 def listfiles(path):
     if path == "" or path == None:
         path = os.getcwd()
-    print(f'PATH = {args.path}')
+    print(f'PATH = {args.path}\n')
 
     files = []
     skipped_dot_dirs = []
@@ -57,9 +57,10 @@ def listfiles(path):
                         break
                 # output filenames that meet all criteria
                 if not hide_file_status:
-                    # files.append(os.path.join(r, filename))
-                    if filename not in files:
-                        files.append(filename)
+                    # if filename not in files:
+                    #     files.append(filename)
+                    if os.path.join(r, filename) not in files:
+                        files.append(os.path.join(r, filename))
                 
     # output skipped dirs/files stats
     print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}\n")
@@ -71,4 +72,4 @@ def listfiles(path):
 
 listfiles(args.path)
 
-k = input("Finished.")
+k = input("Finished. Press enter to exit.")
