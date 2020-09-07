@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 std_ignored_exts = []
 
-def listfiles(path):
+def getValidFiles(path):
     if path == "" or path == None:
         path = os.getcwd()
     print(f'PATH = {args.path}\n')
@@ -23,11 +23,25 @@ def listfiles(path):
     
     # r=root, d=directories, f=files
     for r, d, f in os.walk(path):
+
         # check if dir is a dot dir
         for dir in d:
             if dir.startswith(".") and not args.include_dot_dirs:
                 skipped_dot_dirs.append(dir)
+
+        # check if dot dir is in a dot dir
+        for dir in d:
+            if dir.startswith(".") and not args.include_dot_dirs:
+                for dir1 in skipped_dot_dirs:
+                    if ("\\" + dir1) in r:
+                        try:
+                            del skipped_dot_dirs[skipped_dot_dirs.index(dir)]
+                        except:
+                            pass
+       
+       # check validity of files
         for filename in f:
+
             # check if file is in a dot dir
             full_file_path = os.path.join(r, filename)
             in_dot_dir = False
@@ -35,33 +49,32 @@ def listfiles(path):
                 if ("\\" + dir + "\\") in full_file_path:
                     in_dot_dir = True
                     break
-                if ("/" + dir + "/") in full_file_path:
-                    in_dot_dir = True
-                    break
             if in_dot_dir:
                 continue
-            hide_file_status = False
+            
             # check if the file only has an extension and no name
             if filename.startswith(".") and not args.include_dot_files:
                 if filename not in skipped_dot_files:
                     skipped_dot_files.append(filename)
                 continue
+            
             # check if filename doesn't have an extension
             if "." not in filename and not args.include_no_ext:
                 if filename not in skipped_noext_files:
                     skipped_noext_files.append(filename)
                 continue
+            
             # check if filename has a standard ignored extension
+            hide_file_status = False
             for ext in std_ignored_exts:
                 if filename.endswith(ext):
                     if filename not in skipped_stdignored_files:
                         hide_file_status = True
                         skipped_stdignored_files.append(filename)
                     break
+            
             # output filenames that meet all criteria
             if not hide_file_status:
-                # if filename not in files:
-                #     files.append(filename)
                 if full_file_path not in files:
                     files.append(full_file_path)
                 
@@ -73,6 +86,6 @@ def listfiles(path):
     print(f"FILES = {len(files)} {files}\n")
 
 
-listfiles(args.path)
+getValidFiles(args.path)
 
 k = input("Finished. Press enter to exit.")
