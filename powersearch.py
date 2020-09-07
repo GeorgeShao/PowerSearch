@@ -8,18 +8,19 @@ parser.add_argument('--include-dot-files', action='store_true', help='Include fi
 parser.add_argument('--include-no-ext', action='store_true', help='Include files with no extension')
 args = parser.parse_args()
 
-std_ignored_exts = []
-
 def getValidFiles(path):
     if path == "" or path == None:
         path = os.getcwd()
-    print(f'PATH = {args.path}\n')
+    print(f'PATH = {path}')
 
-    files = []
+    std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz']
+    
     skipped_dot_dirs = []
     skipped_dot_files = []
     skipped_noext_files = []
     skipped_stdignored_files = []
+
+    files = []
     
     # r=root, d=directories, f=files
     for r, d, f in os.walk(path):
@@ -79,13 +80,21 @@ def getValidFiles(path):
                     files.append(full_file_path)
                 
     # output skipped dirs/files stats
-    print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}\n")
-    print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}\n")
-    print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}\n")
-    print(f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}\n")
-    print(f"FILES = {len(files)} {files}\n")
+    print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
+    print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+    print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
+    print(f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}")
+    print(f"# FILES = {len(files)}")
+
+    for filepath in files:
+        print(f"RECEIVED: {filepath}")
+
+    return files
 
 
-getValidFiles(args.path)
+def scanFiles(files):
+    pass
+
+scanFiles(getValidFiles(args.path))
 
 k = input("Finished. Press enter to exit.")
