@@ -3,9 +3,12 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
+parser.add_argument('--keyword', help='Search for a keyword')
+parser.add_argument('--encoding', help='Set an encoding (default=utf8)') # TODO
 parser.add_argument('--include-dot-dirs', action='store_true', help='Include directories that only have an extension and no name')
 parser.add_argument('--include-dot-files', action='store_true', help='Include files that only have an extension and no name')
 parser.add_argument('--include-no-ext', action='store_true', help='Include files with no extension')
+parser.add_argument('--ignore-file-encoding-errors', action='store_true', help='Ignore file decoding errors') # TODO
 args = parser.parse_args()
 
 def getValidFiles(path):
@@ -93,7 +96,22 @@ def getValidFiles(path):
 
 
 def scanFiles(files):
-    pass
+    if args.keyword == "" or args.keyword == None:
+        print("ERROR: keyword argument missing")
+        exit()
+    else:
+        keyword = args.keyword
+        print(f'KEYWORD = {keyword}')
+    for filepath in files:
+        with open(filepath, "r", encoding="utf8", errors="ignore") as file:
+            try:
+                file_content = file.read()
+                num_occurences = file_content.count(keyword)
+                if num_occurences > 0:
+                    print(f'RESULT: {num_occurences} in {filepath}')
+            except Exception as e:
+                print("ERROR:", e)
+                continue
 
 scanFiles(getValidFiles(args.path))
 
