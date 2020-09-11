@@ -4,17 +4,25 @@ import argparse
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
 parser.add_argument('--keyword', help='Search for a keyword')
-parser.add_argument('--encoding', help='Set an encoding (default=utf8)') # TODO
+parser.add_argument('--encoding', help='Set an encoding (default=utf8)')
 parser.add_argument('--include-dot-dirs', action='store_true', help='Include directories that only have an extension and no name')
 parser.add_argument('--include-dot-files', action='store_true', help='Include files that only have an extension and no name')
 parser.add_argument('--include-no-ext', action='store_true', help='Include files with no extension')
-parser.add_argument('--ignore-file-encoding-errors', action='store_true', help='Ignore file decoding errors') # TODO
+parser.add_argument('--show-errors', action='store_true', help='Show errors')
+parser.add_argument('--show-received', action='store_true', help='Show received file status')
+parser.add_argument('--show-read', action='store_true', help='Show read file status')
 args = parser.parse_args()
 
 def getValidFiles(path):
     if path == "" or path == None:
         path = os.getcwd()
+    
     print(f'PATH = {path}')
+
+    if args.show_received:
+        show_received = True
+    else:
+        show_received = False
 
     std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz']
     
@@ -90,7 +98,8 @@ def getValidFiles(path):
     print(f"# FILES = {len(files)}")
 
     for filepath in files:
-        print(f"RECEIVED: {filepath}")
+        if show_received:
+            print(f"RECEIVED: {filepath}")
 
     return files
 
@@ -102,16 +111,43 @@ def scanFiles(files):
     else:
         keyword = args.keyword
         print(f'KEYWORD = {keyword}')
+    
+    if args.encoding == "" or args.encoding == None:
+        encoding = "utf8"
+    else:
+        encoding = args.encoding
+        print(f'ENCODING = {ENCODING}')
+    
+    if args.show_errors:
+        error_handling_type = "strict"
+    else:
+        error_handling_type = "ignore"
+    
+    if args.show_read:
+        show_read = True
+    else:
+        show_read = False
+    
+    num_errors = 0
+    error_files = []
+
     for filepath in files:
-        with open(filepath, "r", encoding="utf8", errors="ignore") as file:
+        with open(filepath, "r", encoding=encoding, errors="ignore") as file:
             try:
                 file_content = file.read()
+                if show_read:
+                    print(f'READ: {filepath}')
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
-                    print(f'RESULT: {num_occurences} in {filepath}')
+                    print(f'RESULT: {num_occurences} occurences in {filepath}')
             except Exception as e:
-                print("ERROR:", e)
+                print("ERROR:", e, '[' + filepath + ']')
+                num_errors += 1
+                error_files.append(filepath)
                 continue
+    
+    if error_handling_type == "strict":
+        print(f'TOTAL # ERRORS = {num_errors}')
 
 scanFiles(getValidFiles(args.path))
 
