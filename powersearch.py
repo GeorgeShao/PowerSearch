@@ -3,23 +3,35 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
+parser.add_argument('--keyword', help='Search for a keyword')
+parser.add_argument('--encoding', help='Set an encoding (default=utf8)')
 parser.add_argument('--include-dot-dirs', action='store_true', help='Include directories that only have an extension and no name')
 parser.add_argument('--include-dot-files', action='store_true', help='Include files that only have an extension and no name')
 parser.add_argument('--include-no-ext', action='store_true', help='Include files with no extension')
+parser.add_argument('--show-errors', action='store_true', help='Show errors')
+parser.add_argument('--show-received', action='store_true', help='Show received file status')
+parser.add_argument('--show-read', action='store_true', help='Show read file status')
 args = parser.parse_args()
-
-std_ignored_exts = []
 
 def getValidFiles(path):
     if path == "" or path == None:
         path = os.getcwd()
-    print(f'PATH = {args.path}\n')
+    
+    print(f'PATH = {path}')
 
-    files = []
+    if args.show_received:
+        show_received = True
+    else:
+        show_received = False
+
+    std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz']
+    
     skipped_dot_dirs = []
     skipped_dot_files = []
     skipped_noext_files = []
     skipped_stdignored_files = []
+
+    files = []
     
     # r=root, d=directories, f=files
     for r, d, f in os.walk(path):
@@ -79,13 +91,64 @@ def getValidFiles(path):
                     files.append(full_file_path)
                 
     # output skipped dirs/files stats
-    print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}\n")
-    print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}\n")
-    print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}\n")
-    print(f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}\n")
-    print(f"FILES = {len(files)} {files}\n")
+    print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
+    print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+    print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
+    print(f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}")
+    print(f"# FILES = {len(files)}")
+
+    for filepath in files:
+        if show_received:
+            print(f"RECEIVED: {filepath}")
+
+    return files
 
 
-getValidFiles(args.path)
+def scanFiles(files):
+    if args.keyword == "" or args.keyword == None:
+        print("ERROR: keyword argument missing")
+        exit()
+    else:
+        keyword = args.keyword
+        print(f'KEYWORD = {keyword}')
+    
+    if args.encoding == "" or args.encoding == None:
+        encoding = "utf8"
+    else:
+        encoding = args.encoding
+        print(f'ENCODING = {ENCODING}')
+    
+    if args.show_errors:
+        error_handling_type = "strict"
+    else:
+        error_handling_type = "ignore"
+    
+    if args.show_read:
+        show_read = True
+    else:
+        show_read = False
+    
+    num_errors = 0
+    error_files = []
+
+    for filepath in files:
+        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+            try:
+                file_content = file.read()
+                if show_read:
+                    print(f'READ: {filepath}')
+                num_occurences = file_content.count(keyword)
+                if num_occurences > 0:
+                    print(f'RESULT: {num_occurences} occurences in {filepath}')
+            except Exception as e:
+                print("ERROR:", e, '[' + filepath + ']')
+                num_errors += 1
+                error_files.append(filepath)
+                continue
+    
+    if error_handling_type == "strict":
+        print(f'TOTAL # ERRORS = {num_errors}')
+
+scanFiles(getValidFiles(args.path))
 
 k = input("Finished. Press enter to exit.")
