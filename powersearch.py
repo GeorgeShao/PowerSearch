@@ -132,7 +132,7 @@ def scanFiles(files):
     error_files = []
 
     for filepath in files:
-        with open(filepath, "r", encoding=encoding, errors="ignore") as file:
+        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
             try:
                 file_content = file.read()
                 if show_read:
