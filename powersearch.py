@@ -11,6 +11,7 @@ parser.add_argument('--include-no-ext', action='store_true', help='Include files
 parser.add_argument('--show-errors', action='store_true', help='Show errors, will not return results if errors are found')
 parser.add_argument('--show-received', action='store_true', help='Show received file status')
 parser.add_argument('--show-read', action='store_true', help='Show read file status')
+parser.add_argument('--show-skipped', action='store_true', help='Show skipped dot dirs, dot files, noext files, and stdignored files')
 args = parser.parse_args()
 
 def getValidFiles(path):
@@ -23,6 +24,12 @@ def getValidFiles(path):
         show_received = True
     else:
         show_received = False
+    
+    if args.show_skipped:
+        show_skipped = True
+    else:
+        show_skipped = False
+
 
     std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz', '.map', '.png', '.jpg', '.eot', '.ttf', '.woff', '.woff2', '.gif']
     
@@ -73,7 +80,7 @@ def getValidFiles(path):
             # check if filename doesn't have an extension
             if "." not in filename and not args.include_no_ext:
                 if filename not in skipped_noext_files:
-                    skipped_noext_files.append(filename)
+                    skipped_stdignored_files.append(full_file_path)
                 continue
             
             # check if filename has a standard ignored extension
@@ -82,7 +89,7 @@ def getValidFiles(path):
                 if filename.endswith(ext):
                     if filename not in skipped_stdignored_files:
                         hide_file_status = True
-                        skipped_stdignored_files.append(filename)
+                        skipped_stdignored_files.append(full_file_path)
                     break
             
             # output filenames that meet all criteria
@@ -91,11 +98,12 @@ def getValidFiles(path):
                     files.append(full_file_path)
                 
     # output skipped dirs/files stats
-    print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
-    print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
-    print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
-    print(f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}")
-    print(f"# FILES = {len(files)}")
+    if show_skipped:
+        print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
+        print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+        print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
+        print(f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}")
+    print(f"# FILES RECEIVED = {len(files)}")
 
     for filepath in files:
         if show_received:
@@ -116,7 +124,7 @@ def scanFiles(files):
         encoding = "utf8"
     else:
         encoding = args.encoding
-        print(f'ENCODING = {ENCODING}')
+        print(f'ENCODING = {encoding}')
     
     if args.show_errors:
         error_handling_type = "strict"
