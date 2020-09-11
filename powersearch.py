@@ -24,7 +24,7 @@ def getValidFiles(path):
     else:
         show_received = False
 
-    std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz']
+    std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz', '.map', '.png', '.jpg', '.eot', '.ttf', '.woff', '.woff2', '.gif']
     
     skipped_dot_dirs = []
     skipped_dot_files = []
@@ -134,9 +134,9 @@ def scanFiles(files):
     for filepath in files:
         with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
             try:
-                file_content = file.read()
                 if show_read:
                     print(f'READ: {filepath}')
+                file_content = file.read()
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f'RESULT: {num_occurences} occurences in {filepath}')
@@ -146,8 +146,8 @@ def scanFiles(files):
                 error_files.append(filepath)
                 continue
     
-    if error_handling_type == "strict":
-        print(f'TOTAL # ERRORS = {num_errors}')
+    if error_handling_type == "strict" and num_errors > 0:
+            print(f'TOTAL # ERRORS = {num_errors}')
 
 scanFiles(getValidFiles(args.path))
 
