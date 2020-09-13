@@ -1,6 +1,7 @@
 import os
 import argparse
 
+
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
 parser.add_argument('--keyword', help='Search for a keyword')
