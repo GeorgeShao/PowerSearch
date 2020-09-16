@@ -38,7 +38,7 @@ def getValidFiles(path):
     skipped_dot_files = []
     skipped_noext_files = []
     skipped_stdignored_files = []
-    
+
     files = []
     
     # r=root, d=directories, f=files
@@ -141,6 +141,7 @@ def scanFiles(files):
     error_files = []
 
     for filepath in files:
+        filename, file_extension = os.path.splitext(filepath)
         with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
             try:
                 if show_read:
