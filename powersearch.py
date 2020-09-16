@@ -38,7 +38,7 @@ def getValidFiles(path):
     skipped_dot_files = []
     skipped_noext_files = []
     skipped_stdignored_files = []
-
+    
     files = []
     
     # r=root, d=directories, f=files
