@@ -25,4 +25,5 @@ jobs:
           github_token: ${{ SECRETS.GITHUB_TOKEN }}
           # Enable linters
           black: true
-          flake8: false
+          mypy: true
+          auto_fix: true
