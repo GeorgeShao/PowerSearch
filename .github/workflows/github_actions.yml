@@ -1,6 +1,9 @@
 name: Code Quality
 
 on:
+  pull_request:
+    paths:
+      - "powersearch.py"
   push:
     paths:
       - "powersearch.py"
