@@ -1,28 +1,28 @@
-name: Code Quality
+name: Lint
 
-on:
-  pull_request:
-    paths:
-      - "powersearch.py"
-  push:
-    paths:
-      - "powersearch.py"
-  workflow_dispatch:
-    paths:
-      - "powersearch.py"
+on: push
 
 jobs:
-  lint:
-    name: Python Lint
+  run-linters:
+    name: Run linters
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
         with:
-          python-version: "3.8"
-      - name: Run flake8
-        uses: julianwachholz/flake8-action@v1
+          python-version: 3.8
+
+      - name: Install Python dependencies
+        run: pip install black flake8
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v1
         with:
-          checkName: "Python Lint"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ SECRETS.GITHUB_TOKEN }}
+          # Enable linters
+          black: true
+          flake8: false
