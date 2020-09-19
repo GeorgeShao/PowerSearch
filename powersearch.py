@@ -3,26 +3,43 @@ import argparse
 import textract
 
 parser = argparse.ArgumentParser(
-    description='Command line tool for searching the content of multiple files at once')
-parser.add_argument('--path', help='Select a path')
-parser.add_argument('--keyword', help='Search for a keyword')
-parser.add_argument('--encoding', help='Set an encoding (default=utf8)')
-parser.add_argument('--include-dot-dirs', action='store_true',
-                    help='Include directories that only have an extension and no name')
-parser.add_argument('--include-dot-files', action='store_true',
-                    help='Include files that only have an extension and no name')
-parser.add_argument('--include-no-ext', action='store_true',
-                    help='Include files with no extension')
-parser.add_argument('--show-errors', action='store_true',
-                    help='Show errors, will not return results if errors are found')
-parser.add_argument('--show-received', action='store_true',
-                    help='Show received file status')
-parser.add_argument('--show-read', action='store_true',
-                    help='Show read file status')
-parser.add_argument('--show-skipped', action='store_true',
-                    help='Show skipped dot dirs, dot files, noext files, and stdignored files')
-parser.add_argument('--case-sensitive', action='store_true',
-                    help='Enable case-sensitive keyword searching')
+    description="Command line tool for searching the content of multiple files at once"
+)
+parser.add_argument("--path", help="Select a path")
+parser.add_argument("--keyword", help="Search for a keyword")
+parser.add_argument("--encoding", help="Set an encoding (default=utf8)")
+parser.add_argument(
+    "--include-dot-dirs",
+    action="store_true",
+    help="Include directories that only have an extension and no name",
+)
+parser.add_argument(
+    "--include-dot-files",
+    action="store_true",
+    help="Include files that only have an extension and no name",
+)
+parser.add_argument(
+    "--include-no-ext", action="store_true", help="Include files with no extension"
+)
+parser.add_argument(
+    "--show-errors",
+    action="store_true",
+    help="Show errors, will not return results if errors are found",
+)
+parser.add_argument(
+    "--show-received", action="store_true", help="Show received file status"
+)
+parser.add_argument("--show-read", action="store_true", help="Show read file status")
+parser.add_argument(
+    "--show-skipped",
+    action="store_true",
+    help="Show skipped dot dirs, dot files, noext files, and stdignored files",
+)
+parser.add_argument(
+    "--case-sensitive",
+    action="store_true",
+    help="Enable case-sensitive keyword searching",
+)
 args = parser.parse_args()
 
 
@@ -30,7 +47,7 @@ def getValidFiles(path):
     if path == "" or path == None:
         path = os.getcwd()
 
-    print(f'PATH = {path}')
+    print(f"PATH = {path}")
 
     if args.show_received:
         show_received = True
@@ -42,8 +59,22 @@ def getValidFiles(path):
     else:
         show_skipped = False
 
-    std_ignored_exts = ['.cache', '.pyc', 'toc', '.zip', '.pkg', '.pyz',
-                        '.map', '.png', '.jpg', '.eot', '.ttf', '.woff', '.woff2', '.gif']
+    std_ignored_exts = [
+        ".cache",
+        ".pyc",
+        "toc",
+        ".zip",
+        ".pkg",
+        ".pyz",
+        ".map",
+        ".png",
+        ".jpg",
+        ".eot",
+        ".ttf",
+        ".woff",
+        ".woff2",
+        ".gif",
+    ]
 
     skipped_dot_dirs = []
     skipped_dot_files = []
@@ -70,7 +101,7 @@ def getValidFiles(path):
                         except:
                             pass
 
-       # check validity of files
+        # check validity of files
         for filename in f:
 
             # check if file is in a dot dir
@@ -112,12 +143,11 @@ def getValidFiles(path):
     # output skipped dirs/files stats
     if show_skipped:
         print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
+        print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+        print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
         print(
-            f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
-        print(
-            f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
-        print(
-            f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}")
+            f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}"
+        )
     print(f"# FILES RECEIVED = {len(files)}")
 
     for filepath in files:
@@ -133,13 +163,13 @@ def scanFiles(files):
         exit()
     else:
         keyword = args.keyword
-        print(f'KEYWORD = {keyword}')
+        print(f"KEYWORD = {keyword}")
 
     if args.encoding == "" or args.encoding == None:
         encoding = "utf8"
     else:
         encoding = args.encoding
-        print(f'ENCODING = {encoding}')
+        print(f"ENCODING = {encoding}")
 
     if args.show_errors:
         error_handling_type = "strict"
@@ -158,32 +188,33 @@ def scanFiles(files):
         if file_extension == ".docx":
             try:
                 if show_read:
-                    print(f'READ: {filepath}')
+                    print(f"READ: {filepath}")
                 file_content = textract.process(filepath)
                 num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
-                    print(f'RESULT: {num_occurences} occurences in {filepath}')
+                    print(f"RESULT: {num_occurences} occurences in {filepath}")
             except Exception as e:
                 if error_handling_type == "strict":
-                    print("ERROR:", e, '[' + filepath + ']')
+                    print("ERROR:", e, "[" + filepath + "]")
                     error_files.append(filepath)
         else:
-            with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+            with open(
+                filepath, "r", encoding=encoding, errors=error_handling_type
+            ) as file:
                 try:
                     if show_read:
-                        print(f'READ: {filepath}')
+                        print(f"READ: {filepath}")
                     file_content = file.read()
                     num_occurences = file_content.count(keyword)
                     if num_occurences > 0:
-                        print(
-                            f'RESULT: {num_occurences} occurences in {filepath}')
+                        print(f"RESULT: {num_occurences} occurences in {filepath}")
                 except Exception as e:
-                    print("ERROR:", e, '[' + filepath + ']')
+                    print("ERROR:", e, "[" + filepath + "]")
                     error_files.append(filepath)
                     continue
 
     if error_handling_type == "strict" and len(error_files) > 0:
-        print(f'TOTAL # ERRORS = {len(error_files)}')
+        print(f"TOTAL # ERRORS = {len(error_files)}")
 
 
 scanFiles(getValidFiles(args.path))
