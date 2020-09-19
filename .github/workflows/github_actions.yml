@@ -17,7 +17,7 @@ jobs:
           python-version: 3.8
 
       - name: Install Python dependencies
-        run: pip install black mypy textract
+        run: pip install black textract
 
       - name: Run linters
         uses: wearerequired/lint-action@v1
@@ -25,5 +25,4 @@ jobs:
           github_token: ${{ SECRETS.GITHUB_TOKEN }}
           # Enable linters
           black: true
-          mypy: true
           auto_fix: true
