@@ -1,6 +1,6 @@
 import os
 import argparse
-
+import textract
 
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
@@ -13,6 +13,7 @@ parser.add_argument('--show-errors', action='store_true', help='Show errors, wil
 parser.add_argument('--show-received', action='store_true', help='Show received file status')
 parser.add_argument('--show-read', action='store_true', help='Show read file status')
 parser.add_argument('--show-skipped', action='store_true', help='Show skipped dot dirs, dot files, noext files, and stdignored files')
+parser.add_argument('--case-sensitive', action='store_true', help='Enable case-sensitive keyword searching')
 args = parser.parse_args()
 
 def getValidFiles(path):
@@ -38,7 +39,7 @@ def getValidFiles(path):
     skipped_dot_files = []
     skipped_noext_files = []
     skipped_stdignored_files = []
-    
+
     files = []
     
     # r=root, d=directories, f=files
@@ -137,26 +138,38 @@ def scanFiles(files):
     else:
         show_read = False
     
-    num_errors = 0
     error_files = []
 
     for filepath in files:
-        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+        filename, file_extension = os.path.splitext(filepath)
+        if file_extension == ".docx":
             try:
                 if show_read:
                     print(f'READ: {filepath}')
-                file_content = file.read()
-                num_occurences = file_content.count(keyword)
+                file_content = textract.process(filepath)
+                num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
                     print(f'RESULT: {num_occurences} occurences in {filepath}')
             except Exception as e:
-                print("ERROR:", e, '[' + filepath + ']')
-                num_errors += 1
-                error_files.append(filepath)
-                continue
+                if error_handling_type == "strict":
+                    print("ERROR:", e, '[' + filepath + ']')
+                    error_files.append(filepath)
+        else:
+            with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+                try:
+                    if show_read:
+                        print(f'READ: {filepath}')
+                    file_content = file.read()
+                    num_occurences = file_content.count(keyword)
+                    if num_occurences > 0:
+                        print(f'RESULT: {num_occurences} occurences in {filepath}')
+                except Exception as e:
+                    print("ERROR:", e, '[' + filepath + ']')
+                    error_files.append(filepath)
+                    continue
     
-    if error_handling_type == "strict" and num_errors > 0:
-            print(f'TOTAL # ERRORS = {num_errors}')
+    if error_handling_type == "strict" and len(error_files) > 0:
+            print(f'TOTAL # ERRORS = {len(error_files)}')
 
 scanFiles(getValidFiles(args.path))
 
