@@ -7,6 +7,9 @@ on:
   push:
     paths:
       - "powersearch.py"
+  workflow_dispatch:
+    paths:
+      - "powersearch.py"
 
 jobs:
   lint:
