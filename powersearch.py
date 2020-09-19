@@ -1,6 +1,6 @@
 import os
 import argparse
-
+import textract
 
 parser = argparse.ArgumentParser(description='Command line tool for searching the content of multiple files at once')
 parser.add_argument('--path', help='Select a path')
@@ -137,27 +137,39 @@ def scanFiles(files):
     else:
         show_read = False
     
-    num_errors = 0
     error_files = []
 
     for filepath in files:
         filename, file_extension = os.path.splitext(filepath)
-        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+        if file_extension == ".docx":
             try:
                 if show_read:
                     print(f'READ: {filepath}')
-                file_content = file.read()
+                file_content = textract.process(filepath)
+                print(file_content)
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f'RESULT: {num_occurences} occurences in {filepath}')
             except Exception as e:
-                print("ERROR:", e, '[' + filepath + ']')
-                num_errors += 1
-                error_files.append(filepath)
-                continue
+                if error_handling_type == "strict":
+                    print("ERROR:", e, '[' + filepath + ']')
+                    error_files.append(filepath)
+        elif:
+            with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+                try:
+                    if show_read:
+                        print(f'READ: {filepath}')
+                    file_content = file.read()
+                    num_occurences = file_content.count(keyword)
+                    if num_occurences > 0:
+                        print(f'RESULT: {num_occurences} occurences in {filepath}')
+                except Exception as e:
+                    print("ERROR:", e, '[' + filepath + ']')
+                    error_files.append(filepath)
+                    continue
     
-    if error_handling_type == "strict" and num_errors > 0:
-            print(f'TOTAL # ERRORS = {num_errors}')
+    if error_handling_type == "strict" and len(error_files) > 0:
+            print(f'TOTAL # ERRORS = {len(error_files)}')
 
 scanFiles(getValidFiles(args.path))
 
