@@ -175,7 +175,7 @@ def scanFiles(files):
         error_handling_type = "strict"
     else:
         error_handling_type = "ignore"
-    
+
     if args.case_sensitive:
         case_sensitive = True
     else:
