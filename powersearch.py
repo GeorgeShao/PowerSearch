@@ -175,6 +175,12 @@ def scanFiles(files):
         error_handling_type = "strict"
     else:
         error_handling_type = "ignore"
+    
+    if args.case_sensitive:
+        case_sensitive = True
+    else:
+        case_sensitive = False
+        keyword = keyword.lower()
 
     if args.show_read:
         show_read = True
@@ -190,6 +196,8 @@ def scanFiles(files):
                 if show_read:
                     print(f"READ: {filepath}")
                 file_content = textract.process(filepath)
+                if not args.case_sensitive:
+                    file_content = file_content.lower()
                 num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
@@ -205,6 +213,8 @@ def scanFiles(files):
                     if show_read:
                         print(f"READ: {filepath}")
                     file_content = file.read()
+                    if not args.case_sensitive:
+                        file_content = file_content.lower()
                     num_occurences = file_content.count(keyword)
                     if num_occurences > 0:
                         print(f"RESULT: {num_occurences} occurences in {filepath}")
@@ -212,6 +222,9 @@ def scanFiles(files):
                     print("ERROR:", e, "[" + filepath + "]")
                     error_files.append(filepath)
                     continue
+
+    if num_occurences == 0:
+        print("RESULT: no occurences found")
 
     if error_handling_type == "strict" and len(error_files) > 0:
         print(f"TOTAL # ERRORS = {len(error_files)}")
