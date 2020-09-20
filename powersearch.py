@@ -188,6 +188,7 @@ def scanFiles(files):
         show_read = False
 
     error_files = []
+    total_occurences = 0
 
     for filepath in files:
         filename, file_extension = os.path.splitext(filepath)
@@ -201,6 +202,7 @@ def scanFiles(files):
                 num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
+                    total_occurences += num_occurences
             except Exception as e:
                 if error_handling_type == "strict":
                     print("ERROR:", e, "[" + filepath + "]")
@@ -218,13 +220,16 @@ def scanFiles(files):
                     num_occurences = file_content.count(keyword)
                     if num_occurences > 0:
                         print(f"RESULT: {num_occurences} occurences in {filepath}")
+                        total_occurences += num_occurences
                 except Exception as e:
                     print("ERROR:", e, "[" + filepath + "]")
                     error_files.append(filepath)
                     continue
 
-    if num_occurences == 0:
+    if total_occurences == 0:
         print("RESULT: no occurences found")
+    else:
+        print(f"RESULT: {total_occurences} total occurences")
 
     if error_handling_type == "strict" and len(error_files) > 0:
         print(f"TOTAL # ERRORS = {len(error_files)}")
