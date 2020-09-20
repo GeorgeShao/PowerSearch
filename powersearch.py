@@ -225,7 +225,7 @@ def scanFiles(files):
                     print("ERROR:", e, "[" + filepath + "]")
                     error_files.append(filepath)
                     continue
-
+             
     if total_occurences == 0:
         print("RESULT: no occurences found")
     else:
