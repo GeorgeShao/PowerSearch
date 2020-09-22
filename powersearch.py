@@ -73,7 +73,7 @@ def getValidFiles(path):
         ".woff",
         ".woff2",
         ".class",
-        ".jar"
+        ".jar",
     ]
 
     skipped_dot_dirs = []
@@ -225,7 +225,7 @@ def scanFiles(files):
                 file_content = textract.process(filepath)
                 if not args.case_sensitive:
                     file_content = str(file_content)
-                    file_content = re.sub(r'\u003c\\1', '', file_content)
+                    file_content = re.sub(r"\u003c\\1", "", file_content)
                     file_content = file_content.lower()
                 num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
