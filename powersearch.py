@@ -192,7 +192,7 @@ def scanFiles(files):
 
     for filepath in files:
         filename, file_extension = os.path.splitext(filepath)
-        if file_extension in ['.csv', '.doc', '.docx', '.eml', '.epub', '.gif', '.jpg', '.jpeg', '.json', '.html', '.htm', '.mp3', '.msg', '.odt', '.ogg', '.pdf', '.png', '.pptx', '.ps', '.rtf', '.tiff', '.tif', '.txt', '.wav', '.xlsx', '.xls']:
+        if file_extension in ['.csv', '.docx', '.eml', '.epub', '.gif', '.jpg', '.jpeg', '.json', '.html', '.htm', '.mp3', '.msg', '.odt', '.ogg', '.pdf', '.png', '.pptx', '.ps', '.rtf', '.tiff', '.tif', '.txt', '.wav', '.xlsx', '.xls']:
             try:
                 if show_read:
                     print(f"READ: {filepath}")
