@@ -1,4 +1,5 @@
 import os
+import re
 import argparse
 import textract
 
@@ -71,6 +72,8 @@ def getValidFiles(path):
         ".ttf",
         ".woff",
         ".woff2",
+        ".class",
+        ".jar"
     ]
 
     skipped_dot_dirs = []
@@ -195,6 +198,8 @@ def scanFiles(files):
                     print(f"READ: {filepath}")
                 file_content = textract.process(filepath)
                 if not args.case_sensitive:
+                    file_content = str(file_content)
+                    file_content = re.sub(r'\u003c\\1', '', file_content)
                     file_content = file_content.lower()
                 num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
@@ -202,7 +207,7 @@ def scanFiles(files):
                     total_occurences += num_occurences
             except Exception as e:
                 if error_handling_type == "strict":
-                    print("ERROR:", e, "[" + filepath + "]")
+                    print("ERROR1:", e, "[" + filepath + "]")
                     error_files.append(filepath)
         else:
             with open(
@@ -213,7 +218,7 @@ def scanFiles(files):
                         print(f"READ: {filepath}")
                     file_content = file.read()
                     if not args.case_sensitive:
-                        file_content = file_content.lower()
+                        file_content = re.escape(file_content).lower()
                     num_occurences = file_content.count(keyword)
                     if num_occurences > 0:
                         print(f"RESULT: {num_occurences} occurences in {filepath}")
