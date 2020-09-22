@@ -29,7 +29,8 @@ parser.add_argument(
 parser.add_argument(
     "--show-received", action="store_true", help="Show received file status"
 )
-parser.add_argument("--show-read", action="store_true", help="Show read file status")
+parser.add_argument("--show-read", action="store_true",
+                    help="Show read file status")
 parser.add_argument(
     "--show-skipped",
     action="store_true",
@@ -67,13 +68,10 @@ def getValidFiles(path):
         ".pkg",
         ".pyz",
         ".map",
-        ".png",
-        ".jpg",
         ".eot",
         ".ttf",
         ".woff",
         ".woff2",
-        ".gif",
     ]
 
     skipped_dot_dirs = []
@@ -143,8 +141,10 @@ def getValidFiles(path):
     # output skipped dirs/files stats
     if show_skipped:
         print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
-        print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
-        print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
+        print(
+            f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+        print(
+            f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
         print(
             f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}"
         )
@@ -192,7 +192,7 @@ def scanFiles(files):
 
     for filepath in files:
         filename, file_extension = os.path.splitext(filepath)
-        if file_extension == ".docx":
+        if file_extension in ['.csv', '.doc', '.docx', '.eml', '.epub', '.gif', '.jpg', '.jpeg', '.json', '.html', '.htm', '.mp3', '.msg', '.odt', '.ogg', '.pdf', '.png', '.pptx', '.ps', '.rtf', '.tiff', '.tif', '.txt', '.wav', '.xlsx', '.xls']:
             try:
                 if show_read:
                     print(f"READ: {filepath}")
@@ -219,7 +219,8 @@ def scanFiles(files):
                         file_content = file_content.lower()
                     num_occurences = file_content.count(keyword)
                     if num_occurences > 0:
-                        print(f"RESULT: {num_occurences} occurences in {filepath}")
+                        print(
+                            f"RESULT: {num_occurences} occurences in {filepath}")
                         total_occurences += num_occurences
                 except Exception as e:
                     print("ERROR:", e, "[" + filepath + "]")
