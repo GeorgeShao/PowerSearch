@@ -197,8 +197,7 @@ def scanFiles(files):
             ".docx",
             ".eml",
             ".epub",
-            ".pdf"
-            ".gif",
+            ".pdf" ".gif",
             ".jpg",
             ".jpeg",
             ".json",
