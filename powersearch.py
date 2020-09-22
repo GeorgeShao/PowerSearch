@@ -197,6 +197,7 @@ def scanFiles(files):
             ".docx",
             ".eml",
             ".epub",
+            ".pdf"
             ".gif",
             ".jpg",
             ".jpeg",
@@ -233,23 +234,6 @@ def scanFiles(files):
             except Exception as e:
                 if error_handling_type == "strict":
                     print("ERROR1:", e, "[" + filepath + "]")
-                    error_files.append(filepath)
-        elif file_extension == ".pdf":
-            try:
-                if show_read:
-                    print(f"READ: {filepath}")
-                file_content = textract.process(filepath, method="pdftotext", encoding="UTF8", extension="")
-                if not args.case_sensitive:
-                    file_content = str(file_content)
-                    file_content = re.sub(r'\u003c\\1', '', file_content)
-                    file_content = file_content.lower()
-                num_occurences = str(file_content).count(keyword)
-                if num_occurences > 0:
-                    print(f"RESULT: {num_occurences} occurences in {filepath}")
-                    total_occurences += num_occurences
-            except Exception as e:
-                if error_handling_type == "strict":
-                    print("ERROR2:", e, "[" + filepath + "]")
                     error_files.append(filepath)
         else:
             with open(
