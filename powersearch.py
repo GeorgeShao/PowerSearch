@@ -74,6 +74,10 @@ def getValidFiles(path):
         ".woff2",
         ".class",
         ".jar",
+        ".veg",
+        ".bak",
+        ".mp4",
+        ".mov",
     ]
 
     skipped_dot_dirs = []
@@ -198,24 +202,23 @@ def scanFiles(files):
             ".eml",
             ".epub",
             ".pdf",
-            ".gif",
+            # ".gif",  does not work due to dependencies
             ".jpg",
             ".jpeg",
             ".json",
             ".html",
             ".htm",
-            ".mp3",
+            # ".mp3", does not work due to dependencies
             ".msg",
             ".odt",
-            ".ogg",
-            ".png",
+            # ".ogg",  does not work due to dependencies
+            # ".png",  does not work due to dependencies
             ".pptx",
             ".ps",
             ".rtf",
-            ".tiff",
-            ".tif",
-            ".txt",
-            ".wav",
+            # ".tiff",  does not work due to dependencies
+            # ".tif",  does not work due to dependencies
+            # ".wav", does not work due to dependencies
             ".xlsx",
             ".xls",
         ]:
