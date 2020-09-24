@@ -223,9 +223,9 @@ def scanFiles(files):
                 if show_read:
                     print(f"READ: {filepath}")
                 file_content = textract.process(filepath).decode("utf8")
+                file_content = str(file_content)
+                file_content = re.sub(r"\u003c\\1", "", file_content)
                 if not args.case_sensitive:
-                    file_content = str(file_content)
-                    file_content = re.sub(r"\u003c\\1", "", file_content)
                     file_content = file_content.lower()
                 num_occurences = str(file_content).count(keyword)
                 if num_occurences > 0:
@@ -243,6 +243,8 @@ def scanFiles(files):
                     if show_read:
                         print(f"READ: {filepath}")
                     file_content = file.read()
+                    file_content = str(file_content)
+                    file_content = re.sub(r"\u003c\\1", "", file_content)
                     if not args.case_sensitive:
                         file_content = re.escape(file_content).lower()
                     num_occurences = file_content.count(keyword)
