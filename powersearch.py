@@ -272,9 +272,7 @@ def scanFiles(filepath):
                 print("ERROR1:", e, "[" + filepath + "]")
                 error_files.append(filepath)
     else:
-        with open(
-            filepath, "r", encoding=encoding, errors=error_handling_type
-        ) as file:
+        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
             try:
                 if show_read:
                     print(f"READ: {filepath}")
