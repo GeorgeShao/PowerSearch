@@ -1,4 +1,10 @@
+import os
+import re
+import sys
 import argparse
+from multiprocessing import Pool
+import textract
+from itertools import product
 
 parser = argparse.ArgumentParser(
     description="Command line tool for searching the content of multiple files at once"
@@ -53,14 +59,6 @@ error_files = []
 total_occurences = 0
 
 def main():
-    import os
-    import re
-    import sys
-    import argparse
-    from multiprocessing import Pool
-    import textract
-    from itertools import product
-
     def getValidFiles(path):
         if path == "" or path == None:
             path = os.getcwd()
