@@ -48,7 +48,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 keyword = ""
-encoding = ""
+encoding = "utf8"
 show_errors = False
 case_sensitive = False
 show_read = False
@@ -59,7 +59,9 @@ error_files = []
 total_occurences = 0
 
 def main():
+    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
     def getValidFiles(path):
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
         if path == "" or path == None:
             path = os.getcwd()
 
@@ -99,8 +101,6 @@ def main():
         skipped_dot_files = []
         skipped_noext_files = []
         skipped_stdignored_files = []
-
-        files = []
 
         # r=root, d=directories, f=files
         for r, d, f in os.walk(path):
@@ -176,6 +176,7 @@ def main():
         return files
 
     def evaluateArgs():
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
         if args.keyword == "" or args.keyword == None:
             print("ERROR: keyword argument missing")
             exit()
@@ -206,9 +207,11 @@ def main():
             show_read = False
 
     def parallelization():
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences
         pool = Pool()
         evaluateArgs()
         valid_files = getValidFiles(args.path)
+        print(valid_files)
         results = pool.map(scanFiles, valid_files)
         pool.close()
         pool.join()
@@ -218,79 +221,74 @@ def main():
 
 
 def scanFiles(valid_files):
+    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
     global total_occurences
-    for filepath in files:
-        filename, file_extension = os.path.splitext(filepath)
-        if file_extension in [
-            ".csv",
-            ".docx",
-            ".eml",
-            ".epub",
-            ".pdf",
-            # ".gif",  does not work due to dependencies
-            ".jpg",
-            ".jpeg",
-            ".json",
-            ".html",
-            ".htm",
-            # ".mp3", does not work due to dependencies
-            ".msg",
-            ".odt",
-            # ".ogg",  does not work due to dependencies
-            # ".png",  does not work due to dependencies
-            ".pptx",
-            ".ps",
-            ".rtf",
-            # ".tiff",  does not work due to dependencies
-            # ".tif",  does not work due to dependencies
-            # ".wav", does not work due to dependencies
-            ".xlsx",
-            ".xls",
-        ]:
+    filename, file_extension = os.path.splitext(valid_files)
+    if file_extension in [
+        ".csv",
+        ".docx",
+        ".eml",
+        ".epub",
+        ".pdf",
+        # ".gif",  does not work due to dependencies
+        ".jpg",
+        ".jpeg",
+        ".json",
+        ".html",
+        ".htm",
+        # ".mp3", does not work due to dependencies
+        ".msg",
+        ".odt",
+        # ".ogg",  does not work due to dependencies
+        # ".png",  does not work due to dependencies
+        ".pptx",
+        ".ps",
+        ".rtf",
+        # ".tiff",  does not work due to dependencies
+        # ".tif",  does not work due to dependencies
+        # ".wav", does not work due to dependencies
+        ".xlsx",
+        ".xls",
+    ]:
+        try:
+            if show_read:
+                print(f"READ: {valid_files}")
+            file_content = textract.process(valid_files).decode("utf8")
+            file_content = str(file_content)
+            file_content = re.sub(r"\u003c\\1", "", file_content)
+            if not args.case_sensitive:
+                file_content = file_content.lower()
+            print("keyword:", keyword)
+            num_occurences = str(file_content).count(keyword)
+            if num_occurences > 0:
+                print(f"RESULT: {num_occurences} occurences in {valid_files}")
+                total_occurences += num_occurences
+        except Exception as e:
+            if error_handling_type == "strict":
+                print("ERROR1:", e, "[" + valid_files + "]")
+                error_files.append(valid_files)
+    else:
+        with open(
+            valid_files, "r", encoding=encoding, errors=error_handling_type
+        ) as file:
             try:
                 if show_read:
-                    print(f"READ: {filepath}")
-                file_content = textract.process(filepath).decode("utf8")
+                    print(f"READ: {valid_files}")
+                file_content = file.read()
                 file_content = str(file_content)
                 file_content = re.sub(r"\u003c\\1", "", file_content)
                 if not args.case_sensitive:
-                    file_content = file_content.lower()
-                num_occurences = str(file_content).count(keyword)
+                    file_content = re.escape(file_content).lower()
+                num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
-                    print(f"RESULT: {num_occurences} occurences in {filepath}")
+                    print(f"RESULT: {num_occurences} occurences in {valid_files}")
                     total_occurences += num_occurences
             except Exception as e:
-                if error_handling_type == "strict":
-                    print("ERROR1:", e, "[" + filepath + "]")
-                    error_files.append(filepath)
-        else:
-            with open(
-                filepath, "r", encoding=encoding, errors=error_handling_type
-            ) as file:
-                try:
-                    if show_read:
-                        print(f"READ: {filepath}")
-                    file_content = file.read()
-                    file_content = str(file_content)
-                    file_content = re.sub(r"\u003c\\1", "", file_content)
-                    if not args.case_sensitive:
-                        file_content = re.escape(file_content).lower()
-                    num_occurences = file_content.count(keyword)
-                    if num_occurences > 0:
-                        print(f"RESULT: {num_occurences} occurences in {filepath}")
-                        total_occurences += num_occurences
-                except Exception as e:
-                    print("ERROR:", e, "[" + filepath + "]")
-                    error_files.append(filepath)
-                    continue
+                print("ERROR:", e, "[" + valid_files + "]")
+                error_files.append(valid_files)
 
-    if total_occurences == 0:
-        print("RESULT: no occurences found")
-    else:
-        print(f"RESULT: {total_occurences} total occurences")
-
-    if error_handling_type == "strict" and len(error_files) > 0:
-        print(f"TOTAL # ERRORS = {len(error_files)}")
+    # if error_handling_type == "strict" and len(error_files) > 0:
+    #     print(f"TOTAL # ERRORS = {len(error_files)}")
 
 if __name__ == "__main__":
     main()
