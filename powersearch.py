@@ -47,12 +47,34 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-keyword = ""
-encoding = "utf8"
-show_errors = False
-case_sensitive = False
-show_read = False
-error_handling_type = "ignore"
+if args.keyword == "" or args.keyword == None:
+    print("ERROR: keyword argument missing")
+    exit()
+else:
+    keyword = args.keyword
+    # print(f"KEYWORD = {keyword}")
+
+if args.encoding == "" or args.encoding == None:
+    encoding = "utf8"
+else:
+    encoding = args.encoding
+    print(f"ENCODING = {encoding}")
+
+if args.show_errors:
+    error_handling_type = "strict"
+else:
+    error_handling_type = "ignore"
+
+if args.case_sensitive:
+    case_sensitive = True
+else:
+    case_sensitive = False
+    keyword = keyword.lower()
+
+if args.show_read:
+    show_read = True
+else:
+    show_read = False
 
 files = []
 error_files = []
@@ -60,9 +82,9 @@ total_occurences = 0
 
 
 def main():
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+    global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
     def getValidFiles(path):
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
         if path == "" or path == None:
             path = os.getcwd()
 
@@ -96,6 +118,7 @@ def main():
             ".bak",
             ".mp4",
             ".mov",
+            ".ini",
         ]
 
         skipped_dot_dirs = []
@@ -178,53 +201,22 @@ def main():
 
         return files
 
-    def evaluateArgs():
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
-        if args.keyword == "" or args.keyword == None:
-            print("ERROR: keyword argument missing")
-            exit()
-        else:
-            keyword = args.keyword
-            print(f"KEYWORD = {keyword}")
-
-        if args.encoding == "" or args.encoding == None:
-            encoding = "utf8"
-        else:
-            encoding = args.encoding
-            print(f"ENCODING = {encoding}")
-
-        if args.show_errors:
-            error_handling_type = "strict"
-        else:
-            error_handling_type = "ignore"
-
-        if args.case_sensitive:
-            case_sensitive = True
-        else:
-            case_sensitive = False
-            keyword = keyword.lower()
-
-        if args.show_read:
-            show_read = True
-        else:
-            show_read = False
 
     def parallelization():
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences, error_files
         pool = Pool()
-        evaluateArgs()
         valid_files = getValidFiles(args.path)
-        print(valid_files)
         results = pool.map(scanFiles, valid_files)
         pool.close()
         pool.join()
         k = input("Finished. Press enter to exit.")
+        print(error_files)
 
     parallelization()
 
 
 def scanFiles(valid_files):
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+    global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
     global total_occurences
     filename, file_extension = os.path.splitext(valid_files)
     if file_extension in [
@@ -261,7 +253,6 @@ def scanFiles(valid_files):
             file_content = re.sub(r"\u003c\\1", "", file_content)
             if not args.case_sensitive:
                 file_content = file_content.lower()
-            print("keyword:", keyword)
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
                 print(f"RESULT: {num_occurences} occurences in {valid_files}")
@@ -289,9 +280,6 @@ def scanFiles(valid_files):
             except Exception as e:
                 print("ERROR:", e, "[" + valid_files + "]")
                 error_files.append(valid_files)
-
-    # if error_handling_type == "strict" and len(error_files) > 0:
-    #     print(f"TOTAL # ERRORS = {len(error_files)}")
 
 
 if __name__ == "__main__":
