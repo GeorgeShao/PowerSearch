@@ -61,6 +61,7 @@ total_occurences = 0
 
 def main():
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+
     def getValidFiles(path):
         global files, keyword, encoding, error_handling_type, case_sensitive, show_read
         if path == "" or path == None:
