@@ -83,6 +83,7 @@ total_occurences = 0
 
 def main():
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
+
     def getValidFiles(path):
         global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
         if path == "" or path == None:
@@ -128,7 +129,7 @@ def main():
             ".tiff",
             ".tif",
             ".wav",
-            ".svg"
+            ".svg",
         ]
 
         skipped_dot_dirs = []
@@ -210,7 +211,6 @@ def main():
                 print(f"RECEIVED: {filepath}")
 
         return files
-
 
     def parallelization():
         global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences, error_files
