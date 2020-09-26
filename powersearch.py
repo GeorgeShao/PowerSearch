@@ -82,12 +82,7 @@ total_occurences = 0
 
 
 def main():
-<<<<<<< HEAD
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
-=======
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
-
->>>>>>> 96d23daf4ba46d4be31fbf7c2baed956d12cf5c1
     def getValidFiles(path):
         global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
         if path == "" or path == None:
@@ -124,6 +119,16 @@ def main():
             ".mp4",
             ".mov",
             ".ini",
+            ".gif",
+            ".jpg",
+            ".jpeg",
+            ".mp3",
+            ".ogg",
+            ".png",
+            ".tiff",
+            ".tif",
+            ".wav",
+            ".svg"
         ]
 
         skipped_dot_dirs = []
@@ -231,8 +236,8 @@ def scanFiles(valid_files):
         ".epub",
         ".pdf",
         # ".gif",  does not work due to dependencies
-        ".jpg",
-        ".jpeg",
+        # ".jpg", does not work due to dependencies
+        # ".jpeg", does not work due to dependencies
         ".json",
         ".html",
         ".htm",
