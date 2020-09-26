@@ -225,10 +225,10 @@ def main():
     parallelization()
 
 
-def scanFiles(valid_files):
+def scanFiles(filepath):
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
     global total_occurences
-    filename, file_extension = os.path.splitext(valid_files)
+    filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
         ".docx",
@@ -257,27 +257,27 @@ def scanFiles(valid_files):
     ]:
         try:
             if show_read:
-                print(f"READ: {valid_files}")
-            file_content = textract.process(valid_files).decode("utf8")
+                print(f"READ: {filepath}")
+            file_content = textract.process(filepath).decode("utf8")
             file_content = str(file_content)
             file_content = re.sub(r"\u003c\\1", "", file_content)
             if not args.case_sensitive:
                 file_content = file_content.lower()
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
-                print(f"RESULT: {num_occurences} occurences in {valid_files}")
+                print(f"RESULT: {num_occurences} occurences in {filepath}")
                 total_occurences += num_occurences
         except Exception as e:
             if error_handling_type == "strict":
-                print("ERROR1:", e, "[" + valid_files + "]")
-                error_files.append(valid_files)
+                print("ERROR1:", e, "[" + filepath + "]")
+                error_files.append(filepath)
     else:
         with open(
-            valid_files, "r", encoding=encoding, errors=error_handling_type
+            filepath, "r", encoding=encoding, errors=error_handling_type
         ) as file:
             try:
                 if show_read:
-                    print(f"READ: {valid_files}")
+                    print(f"READ: {filepath}")
                 file_content = file.read()
                 file_content = str(file_content)
                 file_content = re.sub(r"\u003c\\1", "", file_content)
@@ -285,11 +285,11 @@ def scanFiles(valid_files):
                     file_content = re.escape(file_content).lower()
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
-                    print(f"RESULT: {num_occurences} occurences in {valid_files}")
+                    print(f"RESULT: {num_occurences} occurences in {filepath}")
                     total_occurences += num_occurences
             except Exception as e:
-                print("ERROR:", e, "[" + valid_files + "]")
-                error_files.append(valid_files)
+                print("ERROR:", e, "[" + filepath + "]")
+                error_files.append(filepath)
 
 
 if __name__ == "__main__":
