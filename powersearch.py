@@ -52,47 +52,6 @@ def main():
     import textract
     from itertools import product
 
-    # parser = argparse.ArgumentParser(
-    #     description="Command line tool for searching the content of multiple files at once"
-    # )
-    # parser.add_argument("--path", help="Select a path")
-    # parser.add_argument("--keyword", help="Search for a keyword")
-    # parser.add_argument("--encoding", help="Set an encoding (default=utf8)")
-    # parser.add_argument(
-    #     "--include-dot-dirs",
-    #     action="store_true",
-    #     help="Include directories that only have an extension and no name",
-    # )
-    # parser.add_argument(
-    #     "--include-dot-files",
-    #     action="store_true",
-    #     help="Include files that only have an extension and no name",
-    # )
-    # parser.add_argument(
-    #     "--include-no-ext", action="store_true", help="Include files with no extension"
-    # )
-    # parser.add_argument(
-    #     "--show-errors",
-    #     action="store_true",
-    #     help="Show errors, will not return results if errors are found",
-    # )
-    # parser.add_argument(
-    #     "--show-received", action="store_true", help="Show received file status"
-    # )
-    # parser.add_argument("--show-read", action="store_true", help="Show read file status")
-    # parser.add_argument(
-    #     "--show-skipped",
-    #     action="store_true",
-    #     help="Show skipped dot dirs, dot files, noext files, and stdignored files",
-    # )
-    # parser.add_argument(
-    #     "--case-sensitive",
-    #     action="store_true",
-    #     help="Enable case-sensitive keyword searching",
-    # )
-
-    # args = parser.parse_args()
-
     def getValidFiles(path):
         if path == "" or path == None:
             path = os.getcwd()
@@ -222,7 +181,6 @@ def main():
 
 
 def scanFiles(valid_files):
-    print(args)
     if args.keyword == "" or args.keyword == None:
         print("ERROR: keyword argument missing")
         exit()
