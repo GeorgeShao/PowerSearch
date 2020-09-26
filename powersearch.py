@@ -167,121 +167,121 @@ def main():
     def parallelization():
         pool = Pool()
         valid_files = getValidFiles(args.path)
-        results = pool.map(scanFiles, valid_files)
+        zipped_args = zip(valid_files, args)
+        results = pool.map(scanFiles, zipped_args)
         pool.close()
         pool.join()
+        k = input("Finished. Press enter to exit.")
 
-
-    def scanFiles(files):
-        if args.keyword == "" or args.keyword == None:
-            print("ERROR: keyword argument missing")
-            exit()
-        else:
-            keyword = args.keyword
-            print(f"KEYWORD = {keyword}")
-
-        if args.encoding == "" or args.encoding == None:
-            encoding = "utf8"
-        else:
-            encoding = args.encoding
-            print(f"ENCODING = {encoding}")
-
-        if args.show_errors:
-            error_handling_type = "strict"
-        else:
-            error_handling_type = "ignore"
-
-        if args.case_sensitive:
-            case_sensitive = True
-        else:
-            case_sensitive = False
-            keyword = keyword.lower()
-
-        if args.show_read:
-            show_read = True
-        else:
-            show_read = False
-
-        error_files = []
-        total_occurences = 0
-
-        for filepath in files:
-            filename, file_extension = os.path.splitext(filepath)
-            if file_extension in [
-                ".csv",
-                ".docx",
-                ".eml",
-                ".epub",
-                ".pdf",
-                # ".gif",  does not work due to dependencies
-                ".jpg",
-                ".jpeg",
-                ".json",
-                ".html",
-                ".htm",
-                # ".mp3", does not work due to dependencies
-                ".msg",
-                ".odt",
-                # ".ogg",  does not work due to dependencies
-                # ".png",  does not work due to dependencies
-                ".pptx",
-                ".ps",
-                ".rtf",
-                # ".tiff",  does not work due to dependencies
-                # ".tif",  does not work due to dependencies
-                # ".wav", does not work due to dependencies
-                ".xlsx",
-                ".xls",
-            ]:
-                try:
-                    if show_read:
-                        print(f"READ: {filepath}")
-                    file_content = textract.process(filepath).decode("utf8")
-                    file_content = str(file_content)
-                    file_content = re.sub(r"\u003c\\1", "", file_content)
-                    if not args.case_sensitive:
-                        file_content = file_content.lower()
-                    num_occurences = str(file_content).count(keyword)
-                    if num_occurences > 0:
-                        print(f"RESULT: {num_occurences} occurences in {filepath}")
-                        total_occurences += num_occurences
-                except Exception as e:
-                    if error_handling_type == "strict":
-                        print("ERROR1:", e, "[" + filepath + "]")
-                        error_files.append(filepath)
-            else:
-                with open(
-                    filepath, "r", encoding=encoding, errors=error_handling_type
-                ) as file:
-                    try:
-                        if show_read:
-                            print(f"READ: {filepath}")
-                        file_content = file.read()
-                        file_content = str(file_content)
-                        file_content = re.sub(r"\u003c\\1", "", file_content)
-                        if not args.case_sensitive:
-                            file_content = re.escape(file_content).lower()
-                        num_occurences = file_content.count(keyword)
-                        if num_occurences > 0:
-                            print(f"RESULT: {num_occurences} occurences in {filepath}")
-                            total_occurences += num_occurences
-                    except Exception as e:
-                        print("ERROR:", e, "[" + filepath + "]")
-                        error_files.append(filepath)
-                        continue
-
-        if total_occurences == 0:
-            print("RESULT: no occurences found")
-        else:
-            print(f"RESULT: {total_occurences} total occurences")
-
-        if error_handling_type == "strict" and len(error_files) > 0:
-            print(f"TOTAL # ERRORS = {len(error_files)}")
 
     parallelization()
 
 
+def scanFiles(files, zipped_args):
+    if args.keyword == "" or args.keyword == None:
+        print("ERROR: keyword argument missing")
+        exit()
+    else:
+        keyword = args.keyword
+        print(f"KEYWORD = {keyword}")
+
+    if args.encoding == "" or args.encoding == None:
+        encoding = "utf8"
+    else:
+        encoding = args.encoding
+        print(f"ENCODING = {encoding}")
+
+    if args.show_errors:
+        error_handling_type = "strict"
+    else:
+        error_handling_type = "ignore"
+
+    if args.case_sensitive:
+        case_sensitive = True
+    else:
+        case_sensitive = False
+        keyword = keyword.lower()
+
+    if args.show_read:
+        show_read = True
+    else:
+        show_read = False
+
+    error_files = []
+    total_occurences = 0
+
+    for filepath in files:
+        filename, file_extension = os.path.splitext(filepath)
+        if file_extension in [
+            ".csv",
+            ".docx",
+            ".eml",
+            ".epub",
+            ".pdf",
+            # ".gif",  does not work due to dependencies
+            ".jpg",
+            ".jpeg",
+            ".json",
+            ".html",
+            ".htm",
+            # ".mp3", does not work due to dependencies
+            ".msg",
+            ".odt",
+            # ".ogg",  does not work due to dependencies
+            # ".png",  does not work due to dependencies
+            ".pptx",
+            ".ps",
+            ".rtf",
+            # ".tiff",  does not work due to dependencies
+            # ".tif",  does not work due to dependencies
+            # ".wav", does not work due to dependencies
+            ".xlsx",
+            ".xls",
+        ]:
+            try:
+                if show_read:
+                    print(f"READ: {filepath}")
+                file_content = textract.process(filepath).decode("utf8")
+                file_content = str(file_content)
+                file_content = re.sub(r"\u003c\\1", "", file_content)
+                if not args.case_sensitive:
+                    file_content = file_content.lower()
+                num_occurences = str(file_content).count(keyword)
+                if num_occurences > 0:
+                    print(f"RESULT: {num_occurences} occurences in {filepath}")
+                    total_occurences += num_occurences
+            except Exception as e:
+                if error_handling_type == "strict":
+                    print("ERROR1:", e, "[" + filepath + "]")
+                    error_files.append(filepath)
+        else:
+            with open(
+                filepath, "r", encoding=encoding, errors=error_handling_type
+            ) as file:
+                try:
+                    if show_read:
+                        print(f"READ: {filepath}")
+                    file_content = file.read()
+                    file_content = str(file_content)
+                    file_content = re.sub(r"\u003c\\1", "", file_content)
+                    if not args.case_sensitive:
+                        file_content = re.escape(file_content).lower()
+                    num_occurences = file_content.count(keyword)
+                    if num_occurences > 0:
+                        print(f"RESULT: {num_occurences} occurences in {filepath}")
+                        total_occurences += num_occurences
+                except Exception as e:
+                    print("ERROR:", e, "[" + filepath + "]")
+                    error_files.append(filepath)
+                    continue
+
+    if total_occurences == 0:
+        print("RESULT: no occurences found")
+    else:
+        print(f"RESULT: {total_occurences} total occurences")
+
+    if error_handling_type == "strict" and len(error_files) > 0:
+        print(f"TOTAL # ERRORS = {len(error_files)}")
+
 if __name__ == "__main__":
     main()
-
-k = input("Finished. Press enter to exit.")
