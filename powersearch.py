@@ -58,6 +58,7 @@ files = []
 error_files = []
 total_occurences = 0
 
+
 def main():
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read
     def getValidFiles(path):
@@ -163,7 +164,9 @@ def main():
         if show_skipped:
             print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
             print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
-            print(f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}")
+            print(
+                f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}"
+            )
             print(
                 f"SKIPPED STDIGNORED EXTS = {len(skipped_stdignored_files)} {skipped_stdignored_files}"
             )
@@ -289,6 +292,7 @@ def scanFiles(valid_files):
 
     # if error_handling_type == "strict" and len(error_files) > 0:
     #     print(f"TOTAL # ERRORS = {len(error_files)}")
+
 
 if __name__ == "__main__":
     main()
