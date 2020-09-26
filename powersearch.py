@@ -167,8 +167,9 @@ def main():
     def parallelization():
         pool = Pool()
         valid_files = getValidFiles(args.path)
-        zipped_args = zip(valid_files, args)
-        results = pool.map(scanFiles, zipped_args)
+        commandline_args = [args.keyword, args.encoding, args.show_errors]
+        zipped_args = zip(valid_files, commandline_args)
+        results = pool.starmap(scanFiles, zipped_args)
         pool.close()
         pool.join()
         k = input("Finished. Press enter to exit.")
