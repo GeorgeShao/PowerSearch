@@ -41,7 +41,16 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+keyword = ""
+encoding = ""
+show_errors = False
+case_sensitive = False
+show_read = False
+error_handling_type = "ignore"
+
 files = []
+error_files = []
+total_occurences = 0
 
 def main():
     import os
@@ -168,9 +177,39 @@ def main():
 
         return files
 
+    def evaluateArgs():
+        if args.keyword == "" or args.keyword == None:
+            print("ERROR: keyword argument missing")
+            exit()
+        else:
+            keyword = args.keyword
+            print(f"KEYWORD = {keyword}")
+
+        if args.encoding == "" or args.encoding == None:
+            encoding = "utf8"
+        else:
+            encoding = args.encoding
+            print(f"ENCODING = {encoding}")
+
+        if args.show_errors:
+            error_handling_type = "strict"
+        else:
+            error_handling_type = "ignore"
+
+        if args.case_sensitive:
+            case_sensitive = True
+        else:
+            case_sensitive = False
+            keyword = keyword.lower()
+
+        if args.show_read:
+            show_read = True
+        else:
+            show_read = False
 
     def parallelization():
         pool = Pool()
+        evaluateArgs()
         valid_files = getValidFiles(args.path)
         results = pool.map(scanFiles, valid_files)
         pool.close()
@@ -181,38 +220,7 @@ def main():
 
 
 def scanFiles(valid_files):
-    if args.keyword == "" or args.keyword == None:
-        print("ERROR: keyword argument missing")
-        exit()
-    else:
-        keyword = args.keyword
-        print(f"KEYWORD = {keyword}")
-
-    if args.encoding == "" or args.encoding == None:
-        encoding = "utf8"
-    else:
-        encoding = args.encoding
-        print(f"ENCODING = {encoding}")
-
-    if args.show_errors:
-        error_handling_type = "strict"
-    else:
-        error_handling_type = "ignore"
-
-    if args.case_sensitive:
-        case_sensitive = True
-    else:
-        case_sensitive = False
-        keyword = keyword.lower()
-
-    if args.show_read:
-        show_read = True
-    else:
-        show_read = False
-
-    error_files = []
-    total_occurences = 0
-
+    global total_occurences
     for filepath in files:
         filename, file_extension = os.path.splitext(filepath)
         if file_extension in [
