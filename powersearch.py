@@ -236,7 +236,7 @@ def scanFiles(filepath):
         # ".gif",  does not work due to dependencies
         # ".jpg", does not work due to dependencies
         # ".jpeg", does not work due to dependencies
-        ".json",
+        # ".json", just use raw text searching instead, faster
         # ".html", just use raw text searching instead, faster, more accurate
         # ".htm", just use raw text searching instead, faster, more accurate
         # ".mp3", does not work due to dependencies
