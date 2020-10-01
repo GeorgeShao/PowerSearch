@@ -77,15 +77,14 @@ else:
     show_read = False
 
 files = []
-error_files = []
 total_occurences = 0
 
 
 def main():
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
+    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
 
     def getValidFiles(path):
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
         if path == "" or path == None:
             path = os.getcwd()
 
@@ -213,20 +212,19 @@ def main():
         return files
 
     def parallelization():
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences, error_files
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences
         pool = Pool()
         valid_files = getValidFiles(args.path)
         results = pool.map(scanFiles, valid_files)
         pool.close()
         pool.join()
         k = input("Finished. Press enter to exit.")
-        print(error_files)
 
     parallelization()
 
 
 def scanFiles(filepath):
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read, error_files
+    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
     global total_occurences
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
@@ -239,8 +237,8 @@ def scanFiles(filepath):
         # ".jpg", does not work due to dependencies
         # ".jpeg", does not work due to dependencies
         ".json",
-        ".html",
-        ".htm",
+        # ".html", just use raw text searching instead, faster, more accurate
+        # ".htm", just use raw text searching instead, faster, more accurate
         # ".mp3", does not work due to dependencies
         ".msg",
         ".odt",
@@ -270,7 +268,7 @@ def scanFiles(filepath):
         except Exception as e:
             if error_handling_type == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
-                error_files.append(filepath)
+
     else:
         with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
             try:
@@ -287,7 +285,6 @@ def scanFiles(filepath):
                     total_occurences += num_occurences
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
-                error_files.append(filepath)
 
 
 if __name__ == "__main__":
