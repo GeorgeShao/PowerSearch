@@ -218,6 +218,7 @@ def main():
         results = pool.map(scanFiles, valid_files)
         pool.close()
         pool.join()
+        print("TOTAL OCCURENCES:", total_occurences)
         k = input("Finished. Press enter to exit.")
 
     parallelization()
