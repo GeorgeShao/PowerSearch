@@ -79,6 +79,7 @@ else:
 files = []
 total_occurences_queue = Queue()
 
+
 def main():
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read
 
@@ -212,13 +213,12 @@ def main():
 
     def parallelization():
         global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences_queue
-        
+
         valid_files = getValidFiles(args.path)
 
         files_queue = Queue()
         files_queue.put(valid_files)
 
-        
         total_occurences_queue.put(0)
 
         pool = Pool()
@@ -275,7 +275,9 @@ def scanFiles(filepath):
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
                 print(f"RESULT: {num_occurences} occurences in {filepath}")
-                total_occurences_queue.put(total_occurences_queue.get(block=True) + num_occurences)
+                total_occurences_queue.put(
+                    total_occurences_queue.get(block=True) + num_occurences
+                )
         except Exception as e:
             if error_handling_type == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
@@ -293,7 +295,9 @@ def scanFiles(filepath):
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
-                    total_occurences_queue.put(total_occurences_queue.get(block=True) + num_occurences)
+                    total_occurences_queue.put(
+                        total_occurences_queue.get(block=True) + num_occurences
+                    )
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
 
