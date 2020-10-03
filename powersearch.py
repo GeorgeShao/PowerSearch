@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import argparse
-from multiprocessing import Pool, Queue
+from multiprocessing import Pool
 import textract
 from itertools import product
 
@@ -77,7 +77,7 @@ else:
     show_read = False
 
 files = []
-total_occurences_queue = Queue()
+total_occurences = 0
 
 
 def main():
@@ -212,24 +212,12 @@ def main():
         return files
 
     def parallelization():
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences_queue
-
-        valid_files = getValidFiles(args.path)
-
-        files_queue = Queue()
-        files_queue.put(valid_files)
-
-        total_occurences_queue.put(0)
-
+        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences
         pool = Pool()
-        results = pool.map(scanFiles, files_queue.get(block=True))
+        valid_files = getValidFiles(args.path)
+        results = pool.map(scanFiles, valid_files)
         pool.close()
         pool.join()
-        print("TOTAL OCCURENCES:", total_occurences_queue.get(block=True))
-        files_queue.close()
-        files_queue.join_thread()
-        total_occurences_queue.close()
-        total_occurences_queue.join_thread()
         k = input("Finished. Press enter to exit.")
 
     parallelization()
@@ -237,6 +225,7 @@ def main():
 
 def scanFiles(filepath):
     global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+    global total_occurences
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
@@ -275,9 +264,7 @@ def scanFiles(filepath):
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
                 print(f"RESULT: {num_occurences} occurences in {filepath}")
-                total_occurences_queue.put(
-                    total_occurences_queue.get(block=True) + num_occurences
-                )
+                total_occurences += num_occurences
         except Exception as e:
             if error_handling_type == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
@@ -295,9 +282,7 @@ def scanFiles(filepath):
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
-                    total_occurences_queue.put(
-                        total_occurences_queue.get(block=True) + num_occurences
-                    )
+                    total_occurences += num_occurences
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
 
