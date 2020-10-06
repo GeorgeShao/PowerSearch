@@ -256,43 +256,45 @@ def main():
     parallelization(files)
 
 
-def scanFiles(filepath):
-    def readTotalOccurences():
-        with open(path + "/settings.toml", "r") as file:
-            try:
-                current_occurences = "DEFAULT_VALUE"
-                while current_occurences == 'DEFAULT_VALUE':
-                    settings_file_content = file.read()
-                    settings_dict = dict(pytomlpp.loads(settings_file_content))
-                    current_occurences = settings_dict.get('total_occurences', 'DEFAULT_VALUE')
-                    return current_occurences
-            except Exception as e:
-                print("ERROR: Failed to read settings.toml")
+def readTotalOccurences():
+    with open(path + "/settings.toml", "r") as file:
+        try:
+            current_occurences = "DEFAULT_VALUE"
+            while current_occurences == 'DEFAULT_VALUE':
+                settings_file_content = file.read()
+                settings_dict = dict(pytomlpp.loads(settings_file_content))
+                current_occurences = settings_dict.get('total_occurences', 'DEFAULT_VALUE')
+                return current_occurences
+        except Exception as e:
+            print("ERROR: Failed to read settings.toml")
 
-    def updateTotalOccurences(total_occurences):
-        with open(path + "/settings.toml", "w+") as file:
-            try:
-                file.write(
-                    pytomlpp.dumps(
-                        {
-                            "path": path,
-                            "keyword": keyword,
-                            "encoding": encoding,
-                            "include_dot_dirs": include_dot_dirs,
-                            "include_dot_files": include_dot_files,
-                            "include_no_ext": include_no_ext,
-                            "show_errors": show_errors,
-                            "show_received": show_received,
-                            "show_read": show_read,
-                            "show_skipped": show_skipped,
-                            "case_sensitive": case_sensitive,
-                            "total_occurences": total_occurences,
-                        }
-                    )
+
+def updateTotalOccurences(total_occurences):
+    with open(path + "/settings.toml", "w+") as file:
+        try:
+            file.write(
+                pytomlpp.dumps(
+                    {
+                        "path": path,
+                        "keyword": keyword,
+                        "encoding": encoding,
+                        "include_dot_dirs": include_dot_dirs,
+                        "include_dot_files": include_dot_files,
+                        "include_no_ext": include_no_ext,
+                        "show_errors": show_errors,
+                        "show_received": show_received,
+                        "show_read": show_read,
+                        "show_skipped": show_skipped,
+                        "case_sensitive": case_sensitive,
+                        "total_occurences": total_occurences,
+                    }
                 )
-            except Exception as e:
-                print("ERROR: Failed to update settings.toml")
-    
+            )
+        except Exception as e:
+            print("ERROR: Failed to update settings.toml")
+
+
+def scanFiles(filepath):
     readTotalOccurences()
 
     filename, file_extension = os.path.splitext(filepath)
