@@ -4,7 +4,7 @@ import sys
 import argparse
 from multiprocessing import Pool
 import textract
-from itertools import product
+import pytomlpp
 
 parser = argparse.ArgumentParser(
     description="Command line tool for searching the content of multiple files at once"
@@ -47,23 +47,26 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+if args.path == "" or args.path == None:
+    path = os.getcwd()
+else:
+    path = args.path
+
 if args.keyword == "" or args.keyword == None:
     print("ERROR: keyword argument missing")
     exit()
 else:
     keyword = args.keyword
-    # print(f"KEYWORD = {keyword}")
 
 if args.encoding == "" or args.encoding == None:
     encoding = "utf8"
 else:
     encoding = args.encoding
-    print(f"ENCODING = {encoding}")
 
 if args.show_errors:
-    error_handling_type = "strict"
+    show_errors = "strict"
 else:
-    error_handling_type = "ignore"
+    show_errors = "ignore"
 
 if args.case_sensitive:
     case_sensitive = True
@@ -76,29 +79,62 @@ if args.show_read:
 else:
     show_read = False
 
+if args.show_received:
+    show_received = True
+else:
+    show_received = False
+
+if args.show_skipped:
+    show_skipped = True
+else:
+    show_skipped = False
+
+if args.include_dot_dirs:
+    include_dot_dirs = True
+else:
+    include_dot_dirs = False
+
+if args.include_dot_files:
+    include_dot_files = True
+else:
+    include_dot_files = False
+
+if args.include_no_ext:
+    include_no_ext = True
+else:
+    include_no_ext = False
+
 files = []
 total_occurences = 0
 
 
 def main():
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+    def createTempSettingsFile(path):
+        with open(path + "/settings.toml", "w+") as file:
+            try:
+                file.write(
+                    pytomlpp.dumps(
+                        {
+                            "path": path,
+                            "keyword": keyword,
+                            "encoding": encoding,
+                            "include_dot_dirs": include_dot_dirs,
+                            "include_dot_files": include_dot_files,
+                            "include_no_ext": include_no_ext,
+                            "show_errors": show_errors,
+                            "show_received": show_received,
+                            "show_read": show_read,
+                            "show_skipped": show_skipped,
+                            "case_sensitive": case_sensitive,
+                            "total_occurences": total_occurences,
+                        }
+                    )
+                )
+            except Exception as e:
+                print("ERROR: Failed to create settings.toml")
 
     def getValidFiles(path):
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
-        if path == "" or path == None:
-            path = os.getcwd()
-
         print(f"PATH = {path}")
-
-        if args.show_received:
-            show_received = True
-        else:
-            show_received = False
-
-        if args.show_skipped:
-            show_skipped = True
-        else:
-            show_skipped = False
 
         std_ignored_exts = [
             ".cache",
@@ -141,12 +177,12 @@ def main():
 
             # check if dir is a dot dir
             for dir in d:
-                if dir.startswith(".") and not args.include_dot_dirs:
+                if dir.startswith(".") and not include_dot_dirs:
                     skipped_dot_dirs.append(dir)
 
             # check if dot dir is in a dot dir
             for dir in d:
-                if dir.startswith(".") and not args.include_dot_dirs:
+                if dir.startswith(".") and not include_dot_dirs:
                     for dir1 in skipped_dot_dirs:
                         if ("\\" + dir1) in r:
                             try:
@@ -168,13 +204,13 @@ def main():
                     continue
 
                 # check if the file only has an extension and no name
-                if filename.startswith(".") and not args.include_dot_files:
+                if filename.startswith(".") and not include_dot_files:
                     if filename not in skipped_dot_files:
                         skipped_dot_files.append(filename)
                     continue
 
                 # check if filename doesn't have an extension
-                if "." not in filename and not args.include_no_ext:
+                if "." not in filename and not include_no_ext:
                     if filename not in skipped_noext_files:
                         skipped_stdignored_files.append(full_file_path)
                     continue
@@ -205,27 +241,64 @@ def main():
             )
         print(f"# FILES RECEIVED = {len(files)}")
 
-        for filepath in files:
-            if show_received:
+        if show_received:
+            for filepath in files:
                 print(f"RECEIVED: {filepath}")
 
-        return files
-
-    def parallelization():
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences
+    def parallelization(files):
         pool = Pool()
-        valid_files = getValidFiles(args.path)
-        results = pool.map(scanFiles, valid_files)
+        results = pool.map(scanFiles, files)
         pool.close()
         pool.join()
+        print(f"TOTAL OCCURENCES: {readTotalOccurences()}")
         k = input("Finished. Press enter to exit.")
 
-    parallelization()
+    createTempSettingsFile(path)
+    getValidFiles(path)
+    parallelization(files)
+
+
+def readTotalOccurences():
+    with open(path + "/settings.toml", "r") as file:
+        try:
+            current_occurences = "DEFAULT_VALUE"
+            while current_occurences == "DEFAULT_VALUE":
+                settings_file_content = file.read()
+                settings_dict = dict(pytomlpp.loads(settings_file_content))
+                current_occurences = settings_dict.get(
+                    "total_occurences", "DEFAULT_VALUE"
+                )
+            return current_occurences
+        except Exception as e:
+            print("ERROR: Failed to read settings.toml")
+
+
+def updateTotalOccurences(total_occurences):
+    with open(path + "/settings.toml", "w+") as file:
+        try:
+            file.write(
+                pytomlpp.dumps(
+                    {
+                        "path": path,
+                        "keyword": keyword,
+                        "encoding": encoding,
+                        "include_dot_dirs": include_dot_dirs,
+                        "include_dot_files": include_dot_files,
+                        "include_no_ext": include_no_ext,
+                        "show_errors": show_errors,
+                        "show_received": show_received,
+                        "show_read": show_read,
+                        "show_skipped": show_skipped,
+                        "case_sensitive": case_sensitive,
+                        "total_occurences": total_occurences,
+                    }
+                )
+            )
+        except Exception as e:
+            print("ERROR: Failed to update settings.toml")
 
 
 def scanFiles(filepath):
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
-    global total_occurences
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
@@ -259,30 +332,29 @@ def scanFiles(filepath):
             file_content = textract.process(filepath).decode("utf8")
             file_content = str(file_content)
             file_content = re.sub(r"\u003c\\1", "", file_content)
-            if not args.case_sensitive:
+            if not case_sensitive:
                 file_content = file_content.lower()
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
                 print(f"RESULT: {num_occurences} occurences in {filepath}")
-                total_occurences += num_occurences
+                updateTotalOccurences(int(readTotalOccurences()) + num_occurences)
         except Exception as e:
-            if error_handling_type == "strict":
+            if show_errors == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
-
     else:
-        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+        with open(filepath, "r", encoding=encoding, errors=show_errors) as file:
             try:
                 if show_read:
                     print(f"READ: {filepath}")
                 file_content = file.read()
                 file_content = str(file_content)
                 file_content = re.sub(r"\u003c\\1", "", file_content)
-                if not args.case_sensitive:
+                if not case_sensitive:
                     file_content = re.escape(file_content).lower()
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
-                    total_occurences += num_occurences
+                    updateTotalOccurences(int(readTotalOccurences()) + num_occurences)
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
 
