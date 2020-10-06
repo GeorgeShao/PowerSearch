@@ -34,8 +34,7 @@ parser.add_argument(
 parser.add_argument(
     "--show-received", action="store_true", help="Show received file status"
 )
-parser.add_argument("--show-read", action="store_true",
-                    help="Show read file status")
+parser.add_argument("--show-read", action="store_true", help="Show read file status")
 parser.add_argument(
     "--show-skipped",
     action="store_true",
@@ -119,7 +118,23 @@ def main():
             try:
                 if show_read:
                     print(f"Created settings.toml")
-                file.write(pytomlpp.dumps({"path": path, "keyword": keyword, "encoding": encoding, "include_dot_dirs": include_dot_dirs, "include_dot_files": include_dot_files, "include_no_ext": include_no_ext, "show_errors": show_errors, "show_received": show_received, "show_read": show_read, "show_skipped": show_skipped, "case_sensitive": case_sensitive}))
+                file.write(
+                    pytomlpp.dumps(
+                        {
+                            "path": path,
+                            "keyword": keyword,
+                            "encoding": encoding,
+                            "include_dot_dirs": include_dot_dirs,
+                            "include_dot_files": include_dot_files,
+                            "include_no_ext": include_no_ext,
+                            "show_errors": show_errors,
+                            "show_received": show_received,
+                            "show_read": show_read,
+                            "show_skipped": show_skipped,
+                            "case_sensitive": case_sensitive,
+                        }
+                    )
+                )
             except Exception as e:
                 print("Error creating settings.toml")
 
@@ -178,8 +193,7 @@ def main():
                     for dir1 in skipped_dot_dirs:
                         if ("\\" + dir1) in r:
                             try:
-                                del skipped_dot_dirs[skipped_dot_dirs.index(
-                                    dir)]
+                                del skipped_dot_dirs[skipped_dot_dirs.index(dir)]
                             except:
                                 pass
 
@@ -224,10 +238,8 @@ def main():
 
         # output skipped dirs/files stats
         if show_skipped:
-            print(
-                f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
-            print(
-                f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+            print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
+            print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
             print(
                 f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}"
             )
@@ -239,7 +251,6 @@ def main():
         for filepath in files:
             if show_received:
                 print(f"RECEIVED: {filepath}")
-
 
     def parallelization():
         global files, keyword, encoding, show_errors, case_sensitive, show_read, total_occurences
