@@ -4,7 +4,6 @@ import sys
 import argparse
 from multiprocessing import Pool
 import textract
-from itertools import product
 import pytomlpp
 
 parser = argparse.ArgumentParser(
@@ -63,7 +62,6 @@ if args.encoding == "" or args.encoding == None:
     encoding = "utf8"
 else:
     encoding = args.encoding
-    print(f"ENCODING = {encoding}")
 
 if args.show_errors:
     show_errors = "strict"
@@ -107,12 +105,9 @@ else:
     include_no_ext = False
 
 files = []
-total_occurences = 0
 
 
 def main():
-    global files, keyword, encoding, show_errors, case_sensitive, show_read
-
     def createTempSettingsFile(path):
         with open(path + "/settings.toml", "w+") as file:
             try:
@@ -139,8 +134,6 @@ def main():
                 print("Error creating settings.toml")
 
     def getValidFiles(path):
-        global files, keyword, encoding, show_errors, case_sensitive, show_read
-
         print(f"PATH = {path}")
 
         std_ignored_exts = [
@@ -248,12 +241,11 @@ def main():
             )
         print(f"# FILES RECEIVED = {len(files)}")
 
-        for filepath in files:
-            if show_received:
+        if show_received:
+            for filepath in files:
                 print(f"RECEIVED: {filepath}")
 
-    def parallelization():
-        global files, keyword, encoding, show_errors, case_sensitive, show_read, total_occurences
+    def parallelization(files):
         pool = Pool()
         results = pool.map(scanFiles, files)
         pool.close()
@@ -262,11 +254,10 @@ def main():
 
     createTempSettingsFile(path)
     getValidFiles(path)
-    parallelization()
+    parallelization(files)
 
 
 def scanFiles(filepath):
-    global files, keyword, encoding, show_errors, case_sensitive, show_read, total_occurences
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
@@ -305,7 +296,6 @@ def scanFiles(filepath):
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
                 print(f"RESULT: {num_occurences} occurences in {filepath}")
-                total_occurences += num_occurences
         except Exception as e:
             if show_errors == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
@@ -322,7 +312,6 @@ def scanFiles(filepath):
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
-                    total_occurences += num_occurences
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
 
