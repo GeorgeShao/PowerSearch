@@ -110,6 +110,7 @@ else:
 files = []
 total_occurences = 0
 
+
 def main():
     global files, keyword, encoding, show_errors, case_sensitive, show_read
 
