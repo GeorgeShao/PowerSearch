@@ -264,7 +264,7 @@ def readTotalOccurences():
                 settings_file_content = file.read()
                 settings_dict = dict(pytomlpp.loads(settings_file_content))
                 current_occurences = settings_dict.get('total_occurences', 'DEFAULT_VALUE')
-                return current_occurences
+            return current_occurences
         except Exception as e:
             print("ERROR: Failed to read settings.toml")
 
@@ -295,8 +295,6 @@ def updateTotalOccurences(total_occurences):
 
 
 def scanFiles(filepath):
-    readTotalOccurences()
-
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
