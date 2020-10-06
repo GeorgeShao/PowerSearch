@@ -110,7 +110,6 @@ else:
 files = []
 total_occurences = 0
 
-
 def main():
     global files, keyword, encoding, show_errors, case_sensitive, show_read
 
@@ -118,10 +117,10 @@ def main():
         with open(path + "/settings.toml", "w+") as file:
             try:
                 if show_read:
-                    print(f"Created Temp Settings File: {path}")
+                    print(f"Created settings.toml")
                 file.write(pytomlpp.dumps({"path": path, "keyword": keyword, "encoding": encoding, "include_dot_dirs": include_dot_dirs, "include_dot_files": include_dot_files, "include_no_ext": include_no_ext, "show_errors": show_errors, "show_received": show_received, "show_read": show_read, "show_skipped": show_skipped, "case_sensitive": case_sensitive}))
             except Exception as e:
-                print("Error Creating Temp Settings File:", e, "[" + path + "]")
+                print("Error creating settings.toml")
 
     def getValidFiles(path):
         global files, keyword, encoding, show_errors, case_sensitive, show_read
@@ -240,24 +239,22 @@ def main():
             if show_received:
                 print(f"RECEIVED: {filepath}")
 
-        return files
 
     def parallelization():
         global files, keyword, encoding, show_errors, case_sensitive, show_read, total_occurences
         pool = Pool()
-        valid_files = getValidFiles(args.path)
-        results = pool.map(scanFiles, valid_files)
+        results = pool.map(scanFiles, files)
         pool.close()
         pool.join()
         k = input("Finished. Press enter to exit.")
 
-    createTempSettingsFile(args.path)
+    createTempSettingsFile(path)
+    getValidFiles(path)
     parallelization()
 
 
 def scanFiles(filepath):
-    global files, keyword, encoding, show_errors, case_sensitive, show_read
-    global total_occurences
+    global files, keyword, encoding, show_errors, case_sensitive, show_read, total_occurences
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
@@ -300,7 +297,6 @@ def scanFiles(filepath):
         except Exception as e:
             if show_errors == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
-
     else:
         with open(filepath, "r", encoding=encoding, errors=show_errors) as file:
             try:
