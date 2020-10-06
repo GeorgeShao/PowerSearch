@@ -109,11 +109,12 @@ else:
 files = []
 total_occurences = 0
 
+
 def main():
     global files, keyword, encoding, show_errors, case_sensitive, show_read
 
     def createTempSettingsFile(path):
-        with open(path+"/settings.toml", "w+") as file:
+        with open(path + "/settings.toml", "w+") as file:
             try:
                 if show_read:
                     print(f"Created Temp Settings File: {path}")
@@ -131,10 +132,8 @@ def main():
             except Exception as e:
                 print("Error Creating Temp Settings File:", e, "[" + path + "]")
 
-
     def getValidFiles(path):
         global files, keyword, encoding, show_errors, case_sensitive, show_read
-        
 
         print(f"PATH = {path}")
 
