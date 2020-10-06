@@ -249,6 +249,7 @@ def main():
         results = pool.map(scanFiles, files)
         pool.close()
         pool.join()
+        print(f"TOTAL OCCURENCES: {readTotalOccurences()}")
         k = input("Finished. Press enter to exit.")
 
     createTempSettingsFile(path)
