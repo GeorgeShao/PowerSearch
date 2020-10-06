@@ -105,14 +105,12 @@ else:
     include_no_ext = False
 
 files = []
-
+total_occurences = 0
 
 def main():
     def createTempSettingsFile(path):
         with open(path + "/settings.toml", "w+") as file:
             try:
-                if show_read:
-                    print(f"Created settings.toml")
                 file.write(
                     pytomlpp.dumps(
                         {
@@ -127,11 +125,12 @@ def main():
                             "show_read": show_read,
                             "show_skipped": show_skipped,
                             "case_sensitive": case_sensitive,
+                            "total_occurences": total_occurences,
                         }
                     )
                 )
             except Exception as e:
-                print("Error creating settings.toml")
+                print("ERROR: Failed to create settings.toml")
 
     def getValidFiles(path):
         print(f"PATH = {path}")
@@ -258,6 +257,44 @@ def main():
 
 
 def scanFiles(filepath):
+    def readTotalOccurences():
+        with open(path + "/settings.toml", "r") as file:
+            try:
+                current_occurences = "DEFAULT_VALUE"
+                while current_occurences == 'DEFAULT_VALUE':
+                    settings_file_content = file.read()
+                    settings_dict = dict(pytomlpp.loads(settings_file_content))
+                    current_occurences = settings_dict.get('total_occurences', 'DEFAULT_VALUE')
+                    return current_occurences
+            except Exception as e:
+                print("ERROR: Failed to read settings.toml")
+
+    def updateTotalOccurences(total_occurences):
+        with open(path + "/settings.toml", "w+") as file:
+            try:
+                file.write(
+                    pytomlpp.dumps(
+                        {
+                            "path": path,
+                            "keyword": keyword,
+                            "encoding": encoding,
+                            "include_dot_dirs": include_dot_dirs,
+                            "include_dot_files": include_dot_files,
+                            "include_no_ext": include_no_ext,
+                            "show_errors": show_errors,
+                            "show_received": show_received,
+                            "show_read": show_read,
+                            "show_skipped": show_skipped,
+                            "case_sensitive": case_sensitive,
+                            "total_occurences": total_occurences,
+                        }
+                    )
+                )
+            except Exception as e:
+                print("ERROR: Failed to update settings.toml")
+    
+    readTotalOccurences()
+
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
@@ -296,6 +333,7 @@ def scanFiles(filepath):
             num_occurences = str(file_content).count(keyword)
             if num_occurences > 0:
                 print(f"RESULT: {num_occurences} occurences in {filepath}")
+                updateTotalOccurences(int(readTotalOccurences()) + num_occurences)
         except Exception as e:
             if show_errors == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
@@ -312,6 +350,7 @@ def scanFiles(filepath):
                 num_occurences = file_content.count(keyword)
                 if num_occurences > 0:
                     print(f"RESULT: {num_occurences} occurences in {filepath}")
+                    updateTotalOccurences(int(readTotalOccurences()) + num_occurences)
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
 
