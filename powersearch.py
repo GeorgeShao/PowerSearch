@@ -5,6 +5,7 @@ import argparse
 from multiprocessing import Pool
 import textract
 from itertools import product
+import pytomlpp
 
 parser = argparse.ArgumentParser(
     description="Command line tool for searching the content of multiple files at once"
@@ -47,12 +48,16 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+if args.path == "" or args.path == None:
+    path = os.getcwd()
+else:
+    path = args.path
+
 if args.keyword == "" or args.keyword == None:
     print("ERROR: keyword argument missing")
     exit()
 else:
     keyword = args.keyword
-    # print(f"KEYWORD = {keyword}")
 
 if args.encoding == "" or args.encoding == None:
     encoding = "utf8"
@@ -61,9 +66,9 @@ else:
     print(f"ENCODING = {encoding}")
 
 if args.show_errors:
-    error_handling_type = "strict"
+    show_errors = "strict"
 else:
-    error_handling_type = "ignore"
+    show_errors = "ignore"
 
 if args.case_sensitive:
     case_sensitive = True
@@ -76,29 +81,62 @@ if args.show_read:
 else:
     show_read = False
 
+if args.show_received:
+    show_received = True
+else:
+    show_received = False
+
+if args.show_skipped:
+    show_skipped = True
+else:
+    show_skipped = False
+
+if args.include_dot_dirs:
+    include_dot_dirs = True
+else:
+    include_dot_dirs = False
+
+if args.include_dot_files:
+    include_dot_files = True
+else:
+    include_dot_files = False
+
+if args.include_no_ext:
+    include_no_ext = True
+else:
+    include_no_ext = False
+
 files = []
 total_occurences = 0
 
-
 def main():
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+    global files, keyword, encoding, show_errors, case_sensitive, show_read
+
+    def createTempSettingsFile(path):
+        with open(path+"/settings.toml", "w+") as file:
+            try:
+                if show_read:
+                    print(f"Created Temp Settings File: {path}")
+                file.write(f"path = {path}\r")
+                file.write(f"keyword = {keyword}\r")
+                file.write(f"encoding = {encoding}\r")
+                file.write(f"include_dot_dirs = {include_dot_dirs}\r")
+                file.write(f"include_dot_files = {include_dot_files}\r")
+                file.write(f"include_no_ext = {include_no_ext}\r")
+                file.write(f"show_errors = {show_errors}\r")
+                file.write(f"show_received = {show_received}\r")
+                file.write(f"show_read = {show_read}\r")
+                file.write(f"show_skipped = {show_skipped}\r")
+                file.write(f"case_sensitive = {case_sensitive}\r")
+            except Exception as e:
+                print("Error Creating Temp Settings File:", e, "[" + path + "]")
+
 
     def getValidFiles(path):
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read
-        if path == "" or path == None:
-            path = os.getcwd()
+        global files, keyword, encoding, show_errors, case_sensitive, show_read
+        
 
         print(f"PATH = {path}")
-
-        if args.show_received:
-            show_received = True
-        else:
-            show_received = False
-
-        if args.show_skipped:
-            show_skipped = True
-        else:
-            show_skipped = False
 
         std_ignored_exts = [
             ".cache",
@@ -141,12 +179,12 @@ def main():
 
             # check if dir is a dot dir
             for dir in d:
-                if dir.startswith(".") and not args.include_dot_dirs:
+                if dir.startswith(".") and not include_dot_dirs:
                     skipped_dot_dirs.append(dir)
 
             # check if dot dir is in a dot dir
             for dir in d:
-                if dir.startswith(".") and not args.include_dot_dirs:
+                if dir.startswith(".") and not include_dot_dirs:
                     for dir1 in skipped_dot_dirs:
                         if ("\\" + dir1) in r:
                             try:
@@ -168,13 +206,13 @@ def main():
                     continue
 
                 # check if the file only has an extension and no name
-                if filename.startswith(".") and not args.include_dot_files:
+                if filename.startswith(".") and not include_dot_files:
                     if filename not in skipped_dot_files:
                         skipped_dot_files.append(filename)
                     continue
 
                 # check if filename doesn't have an extension
-                if "." not in filename and not args.include_no_ext:
+                if "." not in filename and not include_no_ext:
                     if filename not in skipped_noext_files:
                         skipped_stdignored_files.append(full_file_path)
                     continue
@@ -212,7 +250,7 @@ def main():
         return files
 
     def parallelization():
-        global files, keyword, encoding, error_handling_type, case_sensitive, show_read, total_occurences
+        global files, keyword, encoding, show_errors, case_sensitive, show_read, total_occurences
         pool = Pool()
         valid_files = getValidFiles(args.path)
         results = pool.map(scanFiles, valid_files)
@@ -220,11 +258,12 @@ def main():
         pool.join()
         k = input("Finished. Press enter to exit.")
 
+    createTempSettingsFile(args.path)
     parallelization()
 
 
 def scanFiles(filepath):
-    global files, keyword, encoding, error_handling_type, case_sensitive, show_read
+    global files, keyword, encoding, show_errors, case_sensitive, show_read
     global total_occurences
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
@@ -266,11 +305,11 @@ def scanFiles(filepath):
                 print(f"RESULT: {num_occurences} occurences in {filepath}")
                 total_occurences += num_occurences
         except Exception as e:
-            if error_handling_type == "strict":
+            if show_errors == "strict":
                 print("ERROR1:", e, "[" + filepath + "]")
 
     else:
-        with open(filepath, "r", encoding=encoding, errors=error_handling_type) as file:
+        with open(filepath, "r", encoding=encoding, errors=show_errors) as file:
             try:
                 if show_read:
                     print(f"READ: {filepath}")
