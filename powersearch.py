@@ -107,6 +107,7 @@ else:
 files = []
 total_occurences = 0
 
+
 def main():
     def createTempSettingsFile(path):
         with open(path + "/settings.toml", "w+") as file:
@@ -261,10 +262,12 @@ def readTotalOccurences():
     with open(path + "/settings.toml", "r") as file:
         try:
             current_occurences = "DEFAULT_VALUE"
-            while current_occurences == 'DEFAULT_VALUE':
+            while current_occurences == "DEFAULT_VALUE":
                 settings_file_content = file.read()
                 settings_dict = dict(pytomlpp.loads(settings_file_content))
-                current_occurences = settings_dict.get('total_occurences', 'DEFAULT_VALUE')
+                current_occurences = settings_dict.get(
+                    "total_occurences", "DEFAULT_VALUE"
+                )
             return current_occurences
         except Exception as e:
             print("ERROR: Failed to read settings.toml")
