@@ -34,7 +34,8 @@ parser.add_argument(
 parser.add_argument(
     "--show-received", action="store_true", help="Show received file status"
 )
-parser.add_argument("--show-read", action="store_true", help="Show read file status")
+parser.add_argument("--show-read", action="store_true",
+                    help="Show read file status")
 parser.add_argument(
     "--show-skipped",
     action="store_true",
@@ -109,32 +110,21 @@ else:
 files = []
 total_occurences = 0
 
+
 def main():
     global files, keyword, encoding, show_errors, case_sensitive, show_read
 
     def createTempSettingsFile(path):
-        with open(path+"/settings.toml", "w+") as file:
+        with open(path + "/settings.toml", "w+") as file:
             try:
                 if show_read:
                     print(f"Created Temp Settings File: {path}")
-                file.write(f"path = {path}\r")
-                file.write(f"keyword = {keyword}\r")
-                file.write(f"encoding = {encoding}\r")
-                file.write(f"include_dot_dirs = {include_dot_dirs}\r")
-                file.write(f"include_dot_files = {include_dot_files}\r")
-                file.write(f"include_no_ext = {include_no_ext}\r")
-                file.write(f"show_errors = {show_errors}\r")
-                file.write(f"show_received = {show_received}\r")
-                file.write(f"show_read = {show_read}\r")
-                file.write(f"show_skipped = {show_skipped}\r")
-                file.write(f"case_sensitive = {case_sensitive}\r")
+                file.write(pytomlpp.dumps({"path": path, "keyword": keyword, "encoding": encoding, "include_dot_dirs": include_dot_dirs, "include_dot_files": include_dot_files, "include_no_ext": include_no_ext, "show_errors": show_errors, "show_received": show_received, "show_read": show_read, "show_skipped": show_skipped, "case_sensitive": case_sensitive}))
             except Exception as e:
                 print("Error Creating Temp Settings File:", e, "[" + path + "]")
 
-
     def getValidFiles(path):
         global files, keyword, encoding, show_errors, case_sensitive, show_read
-        
 
         print(f"PATH = {path}")
 
@@ -188,7 +178,8 @@ def main():
                     for dir1 in skipped_dot_dirs:
                         if ("\\" + dir1) in r:
                             try:
-                                del skipped_dot_dirs[skipped_dot_dirs.index(dir)]
+                                del skipped_dot_dirs[skipped_dot_dirs.index(
+                                    dir)]
                             except:
                                 pass
 
@@ -233,8 +224,10 @@ def main():
 
         # output skipped dirs/files stats
         if show_skipped:
-            print(f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
-            print(f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
+            print(
+                f"SKIPPED DOT DIRS = {len(skipped_dot_dirs)} {skipped_dot_dirs}")
+            print(
+                f"SKIPPED DOT FILES = {len(skipped_dot_files)} {skipped_dot_files}")
             print(
                 f"SKIPPED NOEXT FILES = {len(skipped_noext_files)} {skipped_noext_files}"
             )
