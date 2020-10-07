@@ -5,6 +5,9 @@ import argparse
 from multiprocessing import Pool
 import textract
 import pytomlpp
+import time
+
+start_time = time.time()
 
 parser = argparse.ArgumentParser(
     description="Command line tool for searching the content of multiple files at once"
@@ -270,6 +273,8 @@ def main():
         print(f"TOTAL OCCURENCES: {readTotalOccurences()}")
         if not save_temp_config:
             os.remove(path + "/~temp-powersearch-config.toml")
+        end_time = time.time()
+        print(f"RUNTIME: {round(end_time - start_time, 4)}")
         k = input("Finished. Press enter to exit.")
 
     createTempSettingsFile(path)
