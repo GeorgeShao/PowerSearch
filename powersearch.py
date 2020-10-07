@@ -120,7 +120,7 @@ total_occurences = 0
 
 def main():
     def createTempSettingsFile(path):
-        with open(path + "/~temp-settings.toml", "w+") as file:
+        with open(path + "/~temp-powersearch-config.toml", "w+") as file:
             try:
                 file.write(
                     pytomlpp.dumps(
@@ -142,7 +142,7 @@ def main():
                     )
                 )
             except Exception as e:
-                print("ERROR: Failed to create ~temp-settings.toml")
+                print("ERROR: Failed to create ~temp-powersearch-config.toml")
 
     def getValidFiles(path):
         print(f"PATH = {path}")
@@ -262,6 +262,8 @@ def main():
         pool.close()
         pool.join()
         print(f"TOTAL OCCURENCES: {readTotalOccurences()}")
+        if not save_temp_config:
+            os.remove(path + "/~temp-powersearch-config.toml")
         k = input("Finished. Press enter to exit.")
 
     createTempSettingsFile(path)
@@ -270,7 +272,7 @@ def main():
 
 
 def readTotalOccurences():
-    with open(path + "/~temp-settings.toml", "r") as file:
+    with open(path + "/~temp-powersearch-config.toml", "r") as file:
         try:
             current_occurences = "DEFAULT_VALUE"
             while current_occurences == "DEFAULT_VALUE":
@@ -281,11 +283,11 @@ def readTotalOccurences():
                 )
             return current_occurences
         except Exception as e:
-            print("ERROR: Failed to read ~temp-settings.toml")
+            print("ERROR: Failed to read ~temp-powersearch-config.toml")
 
 
 def updateTotalOccurences(total_occurences):
-    with open(path + "/~temp-settings.toml", "w+") as file:
+    with open(path + "/~temp-powersearch-config.toml", "w+") as file:
         try:
             file.write(
                 pytomlpp.dumps(
@@ -307,7 +309,7 @@ def updateTotalOccurences(total_occurences):
                 )
             )
         except Exception as e:
-            print("ERROR: Failed to update ~temp-settings.toml")
+            print("ERROR: Failed to update ~temp-powersearch-config.toml")
 
 
 def scanFiles(filepath):
