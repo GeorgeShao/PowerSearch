@@ -147,6 +147,7 @@ def main():
             except Exception as e:
                 print("ERROR: Failed to create ~temp-powersearch-config.toml")
 
+
     def getValidFiles(path):
         print(f"PATH = {path}")
 
