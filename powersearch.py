@@ -44,6 +44,11 @@ parser.add_argument(
     action="store_true",
     help="Enable case-sensitive keyword searching",
 )
+parser.add_argument(
+    "--save-temp-config",
+    action="store_true",
+    help="Enable case-sensitive keyword searching",
+)
 
 args = parser.parse_args()
 
@@ -73,6 +78,11 @@ if args.case_sensitive:
 else:
     case_sensitive = False
     keyword = keyword.lower()
+
+if args.save_temp_config:
+    save_temp_config = True
+else:
+    save_temp_config = False
 
 if args.show_read:
     show_read = True
@@ -110,7 +120,7 @@ total_occurences = 0
 
 def main():
     def createTempSettingsFile(path):
-        with open(path + "/settings.toml", "w+") as file:
+        with open(path + "/~temp-powersearch-config.toml", "w+") as file:
             try:
                 file.write(
                     pytomlpp.dumps(
@@ -126,12 +136,13 @@ def main():
                             "show_read": show_read,
                             "show_skipped": show_skipped,
                             "case_sensitive": case_sensitive,
+                            "save_temp_config": save_temp_config,
                             "total_occurences": total_occurences,
                         }
                     )
                 )
             except Exception as e:
-                print("ERROR: Failed to create settings.toml")
+                print("ERROR: Failed to create ~temp-powersearch-config.toml")
 
     def getValidFiles(path):
         print(f"PATH = {path}")
@@ -177,12 +188,16 @@ def main():
 
             # check if dir is a dot dir
             for dir in d:
-                if dir.startswith(".") and not include_dot_dirs:
+                if (dir.startswith(".") and not include_dot_dirs) or (
+                    dir.startswith("~") and not include_dot_dirs
+                ):
                     skipped_dot_dirs.append(dir)
 
             # check if dot dir is in a dot dir
             for dir in d:
-                if dir.startswith(".") and not include_dot_dirs:
+                if (dir.startswith(".") and not include_dot_dirs) or (
+                    dir.startswith("~") and not include_dot_dirs
+                ):
                     for dir1 in skipped_dot_dirs:
                         if ("\\" + dir1) in r:
                             try:
@@ -204,7 +219,9 @@ def main():
                     continue
 
                 # check if the file only has an extension and no name
-                if filename.startswith(".") and not include_dot_files:
+                if (filename.startswith(".") and not include_dot_files) or (
+                    filename.startswith("~") and not include_dot_files
+                ):
                     if filename not in skipped_dot_files:
                         skipped_dot_files.append(filename)
                     continue
@@ -251,6 +268,8 @@ def main():
         pool.close()
         pool.join()
         print(f"TOTAL OCCURENCES: {readTotalOccurences()}")
+        if not save_temp_config:
+            os.remove(path + "/~temp-powersearch-config.toml")
         k = input("Finished. Press enter to exit.")
 
     createTempSettingsFile(path)
@@ -259,7 +278,7 @@ def main():
 
 
 def readTotalOccurences():
-    with open(path + "/settings.toml", "r") as file:
+    with open(path + "/~temp-powersearch-config.toml", "r") as file:
         try:
             current_occurences = "DEFAULT_VALUE"
             while current_occurences == "DEFAULT_VALUE":
@@ -270,11 +289,11 @@ def readTotalOccurences():
                 )
             return current_occurences
         except Exception as e:
-            print("ERROR: Failed to read settings.toml")
+            print("ERROR: Failed to read ~temp-powersearch-config.toml")
 
 
 def updateTotalOccurences(total_occurences):
-    with open(path + "/settings.toml", "w+") as file:
+    with open(path + "/~temp-powersearch-config.toml", "w+") as file:
         try:
             file.write(
                 pytomlpp.dumps(
@@ -290,12 +309,13 @@ def updateTotalOccurences(total_occurences):
                         "show_read": show_read,
                         "show_skipped": show_skipped,
                         "case_sensitive": case_sensitive,
+                        "save_temp_config": save_temp_config,
                         "total_occurences": total_occurences,
                     }
                 )
             )
         except Exception as e:
-            print("ERROR: Failed to update settings.toml")
+            print("ERROR: Failed to update ~temp-powersearch-config.toml")
 
 
 def scanFiles(filepath):
