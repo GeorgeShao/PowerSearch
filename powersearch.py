@@ -188,12 +188,16 @@ def main():
 
             # check if dir is a dot dir
             for dir in d:
-                if (dir.startswith(".") and not include_dot_dirs) or (dir.startswith("~") and not include_dot_dirs):
+                if (dir.startswith(".") and not include_dot_dirs) or (
+                    dir.startswith("~") and not include_dot_dirs
+                ):
                     skipped_dot_dirs.append(dir)
 
             # check if dot dir is in a dot dir
             for dir in d:
-                if (dir.startswith(".") and not include_dot_dirs) or (dir.startswith("~") and not include_dot_dirs):
+                if (dir.startswith(".") and not include_dot_dirs) or (
+                    dir.startswith("~") and not include_dot_dirs
+                ):
                     for dir1 in skipped_dot_dirs:
                         if ("\\" + dir1) in r:
                             try:
@@ -215,7 +219,9 @@ def main():
                     continue
 
                 # check if the file only has an extension and no name
-                if (filename.startswith(".") and not include_dot_files) or (filename.startswith("~") and not include_dot_files):
+                if (filename.startswith(".") and not include_dot_files) or (
+                    filename.startswith("~") and not include_dot_files
+                ):
                     if filename not in skipped_dot_files:
                         skipped_dot_files.append(filename)
                     continue
