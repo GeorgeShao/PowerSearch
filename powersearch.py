@@ -102,11 +102,6 @@ if args.show_skipped:
 else:
     show_skipped = False
 
-if args.show_progress:
-    show_progress = True
-else:
-    show_progress = False
-
 if args.include_dot_dirs:
     include_dot_dirs = True
 else:
