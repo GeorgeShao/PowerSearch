@@ -18,12 +18,12 @@ parser.add_argument("--encoding", help="Set an encoding (default=utf8)")
 parser.add_argument(
     "--include-dot-dirs",
     action="store_true",
-    help="Include directories that only have an extension and no name",
+    help="Include directories that start with a . or ~",
 )
 parser.add_argument(
     "--include-dot-files",
     action="store_true",
-    help="Include files that only have an extension and no name",
+    help="Include files that start with a . or ~",
 )
 parser.add_argument(
     "--include-no-ext", action="store_true", help="Include files with no extension"
@@ -50,7 +50,7 @@ parser.add_argument(
 parser.add_argument(
     "--save-temp-config",
     action="store_true",
-    help="Enable case-sensitive keyword searching",
+    help="Do not auto-delete temp config file after program finishes",
 )
 
 args = parser.parse_args()
@@ -101,6 +101,11 @@ if args.show_skipped:
     show_skipped = True
 else:
     show_skipped = False
+
+if args.show_progress:
+    show_progress = True
+else:
+    show_progress = False
 
 if args.include_dot_dirs:
     include_dot_dirs = True
@@ -324,6 +329,7 @@ def updateTotalOccurences(total_occurences):
 
 
 def scanFiles(filepath):
+    filepath = filepath.replace("\\", "/")
     filename, file_extension = os.path.splitext(filepath)
     if file_extension in [
         ".csv",
