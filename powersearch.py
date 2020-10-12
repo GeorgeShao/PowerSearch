@@ -18,12 +18,12 @@ parser.add_argument("--encoding", help="Set an encoding (default=utf8)")
 parser.add_argument(
     "--include-dot-dirs",
     action="store_true",
-    help="Include directories that only have an extension and no name",
+    help="Include directories that start with a . or ~",
 )
 parser.add_argument(
     "--include-dot-files",
     action="store_true",
-    help="Include files that only have an extension and no name",
+    help="Include files that start with a . or ~",
 )
 parser.add_argument(
     "--include-no-ext", action="store_true", help="Include files with no extension"
@@ -50,12 +50,7 @@ parser.add_argument(
 parser.add_argument(
     "--save-temp-config",
     action="store_true",
-    help="Enable case-sensitive keyword searching",
-)
-parser.add_argument(
-    "--show-progress",
-    action="store_true",
-    help="Show file content searching progress",
+    help="Do not auto-delete temp config file after program finishes",
 )
 
 args = parser.parse_args()
@@ -151,7 +146,6 @@ def main():
                             "case_sensitive": case_sensitive,
                             "save_temp_config": save_temp_config,
                             "total_occurences": total_occurences,
-                            "show_progress": show_progress,
                         }
                     )
                 )
@@ -327,7 +321,6 @@ def updateTotalOccurences(total_occurences):
                         "case_sensitive": case_sensitive,
                         "save_temp_config": save_temp_config,
                         "total_occurences": total_occurences,
-                        "show_progress": show_progress,
                     }
                 )
             )
