@@ -317,9 +317,7 @@ def readProgress():
             while current_progress == "DEFAULT_VALUE":
                 settings_file_content = file.read()
                 settings_dict = dict(pytomlpp.loads(settings_file_content))
-                current_progress = settings_dict.get(
-                    "progress", "DEFAULT_VALUE"
-                )
+                current_progress = settings_dict.get("progress", "DEFAULT_VALUE")
             print(current_progress)
             return current_progress
         except Exception as e:
