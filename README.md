@@ -23,7 +23,7 @@ This app can search the content of multiple files at once using Command line
                       [--case-sensitive] [--save-temp-config]
 ```    
 => Some Optional Arguments:-
-01.  `-h, --help`           show this help message and exit
+01.  `-h, --help`           Show this help message and exit
 02.  `--path PATH`          Select a path
 03.  `--keyword KEYWORD`    Search for a keyword
 04.  `--encoding ENCODING`  Set an encoding (default=utf8)
