@@ -308,23 +308,6 @@ def readTotalOccurences():
             print("ERROR: Failed to read ~temp-powersearch-config.toml")
 
 
-<<<<<<< HEAD
-=======
-def readProgress():
-    with open(path + "/~temp-powersearch-config.toml", "r") as file:
-        try:
-            current_progress = "DEFAULT_VALUE"
-            while current_progress == "DEFAULT_VALUE":
-                settings_file_content = file.read()
-                settings_dict = dict(pytomlpp.loads(settings_file_content))
-                current_progress = settings_dict.get("progress", "DEFAULT_VALUE")
-            print(current_progress)
-            return current_progress
-        except Exception as e:
-            print("ERROR: Failed to read ~temp-powersearch-config.toml", e)
-
-
->>>>>>> 6b8b18180414d5ebb4849e4ddb70515c8fcae461
 def updateTotalOccurences(total_occurences):
     with open(path + "/~temp-powersearch-config.toml", "w+") as file:
         try:
