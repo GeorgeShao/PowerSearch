@@ -338,7 +338,6 @@ def updateTotalOccurences(total_occurences):
 def scanFiles(filepath):
     filepath = filepath.replace("\\", "/")
     filename, file_extension = os.path.splitext(filepath)
-    print(filepath)
     if file_extension in [
         ".csv",
         ".docx",
