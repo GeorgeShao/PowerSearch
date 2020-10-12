@@ -310,6 +310,22 @@ def readTotalOccurences():
             print("ERROR: Failed to read ~temp-powersearch-config.toml")
 
 
+def readProgress():
+    with open(path + "/~temp-powersearch-config.toml", "r") as file:
+        try:
+            current_progress = "DEFAULT_VALUE"
+            while current_progress == "DEFAULT_VALUE":
+                settings_file_content = file.read()
+                settings_dict = dict(pytomlpp.loads(settings_file_content))
+                current_progress = settings_dict.get(
+                    "progress", "DEFAULT_VALUE"
+                )
+            print(current_progress)
+            return current_progress
+        except Exception as e:
+            print("ERROR: Failed to read ~temp-powersearch-config.toml", e)
+
+
 def updateTotalOccurences(total_occurences):
     with open(path + "/~temp-powersearch-config.toml", "w+") as file:
         try:
@@ -334,6 +350,35 @@ def updateTotalOccurences(total_occurences):
                     }
                 )
             )
+        except Exception as e:
+            print("ERROR: Failed to update ~temp-powersearch-config.toml")
+
+
+def updateProgress(progress):
+    with open(path + "/~temp-powersearch-config.toml", "w+") as file:
+        try:
+            file.write(
+                pytomlpp.dumps(
+                    {
+                        "path": path,
+                        "keyword": keyword,
+                        "encoding": encoding,
+                        "include_dot_dirs": include_dot_dirs,
+                        "include_dot_files": include_dot_files,
+                        "include_no_ext": include_no_ext,
+                        "show_errors": show_errors,
+                        "show_received": show_received,
+                        "show_read": show_read,
+                        "show_skipped": show_skipped,
+                        "case_sensitive": case_sensitive,
+                        "save_temp_config": save_temp_config,
+                        "total_occurences": total_occurences,
+                        "show_progress": show_progress,
+                        "progress": progress,
+                    }
+                )
+            )
+            print(f"PROGRESS: {progress}/{len(files)}")
         except Exception as e:
             print("ERROR: Failed to update ~temp-powersearch-config.toml")
 
@@ -397,6 +442,7 @@ def scanFiles(filepath):
                     updateTotalOccurences(int(readTotalOccurences()) + num_occurences)
             except Exception as e:
                 print("ERROR:", e, "[" + filepath + "]")
+    updateProgress(int(readProgress()) + 1)
 
 
 if __name__ == "__main__":
