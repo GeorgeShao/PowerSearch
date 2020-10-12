@@ -52,6 +52,11 @@ parser.add_argument(
     action="store_true",
     help="Enable case-sensitive keyword searching",
 )
+parser.add_argument(
+    "--show-progress",
+    action="store_true",
+    help="Show file content searching progress",
+)
 
 args = parser.parse_args()
 
@@ -102,6 +107,11 @@ if args.show_skipped:
 else:
     show_skipped = False
 
+if args.show_progress:
+    show_progress = True
+else:
+    show_progress = False
+
 if args.include_dot_dirs:
     include_dot_dirs = True
 else:
@@ -119,6 +129,7 @@ else:
 
 files = []
 total_occurences = 0
+progress = 0
 
 
 def main():
@@ -141,6 +152,8 @@ def main():
                             "case_sensitive": case_sensitive,
                             "save_temp_config": save_temp_config,
                             "total_occurences": total_occurences,
+                            "show_progress": show_progress,
+                            "progress": progress,
                         }
                     )
                 )
@@ -316,6 +329,8 @@ def updateTotalOccurences(total_occurences):
                         "case_sensitive": case_sensitive,
                         "save_temp_config": save_temp_config,
                         "total_occurences": total_occurences,
+                        "show_progress": show_progress,
+                        "progress": progress,
                     }
                 )
             )
