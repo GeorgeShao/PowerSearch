@@ -16,7 +16,7 @@ This app can search the content of multiple files at once using Command line
  
 => Once we are in Project Directory Open Terminal or Command Prompt, Follow the below commands according to your usage:
 ```bash
-       powersearch.py [-h] [--path PATH] [--keyword KEYWORD]
+       python powersearch.py [-h] [--path PATH] [--keyword KEYWORD]
                       [--encoding ENCODING] [--include-dot-dirs]
                       [--include-dot-files] [--include-no-ext] [--show-errors]
                       [--show-received] [--show-read] [--show-skipped]
