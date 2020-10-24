@@ -274,7 +274,7 @@ def main():
         if not save_temp_config:
             os.remove(path + "/~temp-powersearch-config.toml")
         end_time = time.time()
-        print(f"RUNTIME: {round(end_time - start_time, 4)}")
+        print(f"RUNTIME: {round(end_time - start_time, 2)}s")
         k = input("Finished. Press enter to exit.")
 
     createTempSettingsFile(path)
